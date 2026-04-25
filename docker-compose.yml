@@ -1,0 +1,32 @@
+services:
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      HA_BASE_URL: ${HA_BASE_URL}
+      HA_TOKEN: ${HA_TOKEN}
+      APP_USERNAME: ${APP_USERNAME}
+      APP_PASSWORD: ${APP_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      WEBCAM_TYPE: ${WEBCAM_TYPE:-disabled}
+      WEBCAM_URL: ${WEBCAM_URL:-}
+    networks:
+      - internal
+    expose:
+      - "3001"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - internal
+    depends_on:
+      - api
+
+networks:
+  internal:
+    driver: bridge
