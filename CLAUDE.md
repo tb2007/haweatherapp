@@ -8,9 +8,12 @@ A self-hosted, internet-exposed weather dashboard for an Ecowitt GW1100B station
 Internet
   → nginx reverse proxy (TLS termination, external — not in this repo)
     → frontend container  (nginx:alpine serving Vite static build, port 3000)
-    → api container       (Node/Express, port 3001, internal only)
-                               ↓
-                         Home Assistant  http://hatb.ad.bpu.link:8123
+         /api/*    → api container    (Node/Express, port 3001, internal only)
+                              ↓
+                        Home Assistant  http://hatb.ad.bpu.link:8123
+         /go2rtc/  → go2rtc container  (port 1984, internal only)
+                              ↓
+                        RTSP camera
 ```
 
 The frontend container's nginx proxies `/api/*` to the `api` container over the internal Docker bridge network. The HA token lives only in the API container environment — it is never sent to the browser.
@@ -129,8 +132,7 @@ Copy `.env.example` to `.env` and fill in all values before deploying.
 | `APP_USERNAME` | Login username for the web app |
 | `APP_PASSWORD` | Login password for the web app |
 | `JWT_SECRET` | Random 64-char string for signing JWTs — generate with `openssl rand -hex 32` |
-| `WEBCAM_TYPE` | `hls` \| `mjpeg` \| `youtube` \| `disabled` |
-| `WEBCAM_URL` | Stream URL matching the type above |
+| `RTSP_URL` | RTSP stream URL, e.g. `rtsp://user:pass@ip:554/stream`. Leave blank to disable the webcam panel. |
 
 ## Deployment
 
@@ -156,29 +158,24 @@ location / {
 
 ## Webcam Setup (RTSP)
 
-RTSP cannot play natively in a browser. Options:
+RTSP cannot play natively in a browser. go2rtc runs as a sidecar container inside the Docker Compose stack and transcodes RTSP → HLS. The browser only ever sees a same-origin `/go2rtc/` path — the RTSP URL never leaves the server.
 
-**Option A — go2rtc add-on (recommended):**
-1. Install the `go2rtc` add-on in Home Assistant
-2. Add your RTSP stream to the go2rtc config
-3. Set in `.env`:
-   ```
-   WEBCAM_TYPE=hls
-   WEBCAM_URL=http://your-ha-ip:1984/api/stream.m3u8?src=your_camera_name
-   ```
+**Setup:**
+Set `RTSP_URL` in `.env`:
+```
+RTSP_URL=rtsp://user:pass@camera-ip:554/stream
+```
 
-**Option B — HA camera proxy (if camera is in HA):**
-```
-WEBCAM_TYPE=mjpeg
-WEBCAM_URL=http://hatb.ad.bpu.link:8123/api/camera_proxy_stream/camera.your_entity
-```
-Note: this request goes through the API container (token attached server-side).
+That's it. On `docker compose up`, go2rtc starts, ingests the stream, and the frontend fetches HLS from `/go2rtc/api/stream.m3u8?src=camera` via the nginx proxy.
 
-**Option C — YouTube Live:**
+**How it works:**
 ```
-WEBCAM_TYPE=youtube
-WEBCAM_URL=https://www.youtube.com/watch?v=your_stream_id
+Browser → nginx (/go2rtc/) → go2rtc:1984 → RTSP camera
 ```
+
+The `go2rtc/go2rtc.yaml` config defines a single stream named `camera` sourced from `${RTSP_URL}`. The API webcam endpoint checks if `RTSP_URL` is set and returns the HLS path; if not set, the webcam panel is hidden.
+
+**Webcam disabled:** leave `RTSP_URL` blank in `.env`.
 
 ## Live Data
 

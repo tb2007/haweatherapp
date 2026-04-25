@@ -10,8 +10,7 @@ services:
       APP_USERNAME: ${APP_USERNAME}
       APP_PASSWORD: ${APP_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      WEBCAM_TYPE: ${WEBCAM_TYPE:-disabled}
-      WEBCAM_URL: ${WEBCAM_URL:-}
+      RTSP_URL: ${RTSP_URL:-}
     networks:
       - internal
     expose:
@@ -26,6 +25,19 @@ services:
       - internal
     depends_on:
       - api
+      - go2rtc
+
+  go2rtc:
+    image: alexxit/go2rtc
+    restart: unless-stopped
+    environment:
+      RTSP_URL: ${RTSP_URL:-}
+    volumes:
+      - ./go2rtc/go2rtc.yaml:/config/go2rtc.yaml:ro
+    networks:
+      - internal
+    expose:
+      - "1984"
 
 networks:
   internal:

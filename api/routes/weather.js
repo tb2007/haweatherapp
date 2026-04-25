@@ -66,11 +66,12 @@ router.get('/history/:entityId', async (req, res) => {
   }
 });
 
-// Webcam config (type + url — never exposes raw RTSP creds)
+// Webcam config — returns proxied HLS path; RTSP URL never leaves the server
 router.get('/webcam', (req, res) => {
+  const enabled = !!process.env.RTSP_URL;
   res.json({
-    type: process.env.WEBCAM_TYPE || 'disabled',
-    url: process.env.WEBCAM_URL || '',
+    type: enabled ? 'hls' : 'disabled',
+    url: enabled ? '/go2rtc/api/stream.m3u8?src=camera' : '',
   });
 });
 

@@ -1,0 +1,9 @@
+api:
+  listen: ":1984"
+
+streams:
+  camera:
+    - ${RTSP_URL}
+
+log:
+  level: warn
