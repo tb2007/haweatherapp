@@ -5,7 +5,7 @@ const client = axios.create({ withCredentials: true });
 client.interceptors.response.use(
   (r) => r,
   (err) => {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && window.location.pathname !== '/login') {
       window.location.href = '/login';
     }
     return Promise.reject(err);

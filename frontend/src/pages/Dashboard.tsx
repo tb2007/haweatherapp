@@ -3,15 +3,11 @@ import { ENTITIES } from '../constants/entities';
 import { Header } from '../components/layout/Header';
 import { WeatherHero } from '../components/current/WeatherHero';
 import { RainPanel } from '../components/current/RainPanel';
-import { AirQualityPanel } from '../components/current/AirQualityPanel';
-import { SoilPanel } from '../components/current/SoilPanel';
 import { WebcamPanel } from '../components/webcam/WebcamPanel';
 import { TemperatureChart } from '../components/charts/TemperatureChart';
 import { PressureChart } from '../components/charts/PressureChart';
 import { WindChart } from '../components/charts/WindChart';
 import { RainChart } from '../components/charts/RainChart';
-import { CO2Chart, PMChart } from '../components/charts/AirQualityChart';
-import { SoilChart } from '../components/charts/SoilChart';
 
 export function Dashboard() {
   const { data } = useCurrentWeather();
@@ -25,8 +21,6 @@ export function Dashboard() {
         <div className="mx-auto max-w-7xl space-y-8">
           <WeatherHero />
           <RainPanel />
-          <AirQualityPanel />
-          <SoilPanel />
           <WebcamPanel />
 
           <section>
@@ -38,11 +32,6 @@ export function Dashboard() {
               <PressureChart />
               <WindChart />
               <RainChart />
-              <CO2Chart />
-              <PMChart />
-              <div className="lg:col-span-2">
-                <SoilChart />
-              </div>
             </div>
           </section>
         </div>

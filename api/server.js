@@ -1,3 +1,7 @@
+import { config } from 'dotenv';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+config({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../.env') });
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -17,7 +21,7 @@ app.use(express.json());
 // Strict rate limit on login to prevent brute force
 app.use(
   '/api/auth/login',
-  rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false })
+  rateLimit({ windowMs: 15 * 60 * 1000, max: process.env.NODE_ENV === 'production' ? 10 : 100, standardHeaders: true, legacyHeaders: false })
 );
 
 // General API rate limit

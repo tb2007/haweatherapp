@@ -17,22 +17,9 @@ export const ENTITIES = {
   weeklyRain: 'sensor.gw1100b_v2_0_4_weekly_rain_rate',
   yearlyRain: 'sensor.gw1100b_v2_0_4_yearly_rain_rate',
 
-  // Air quality (WH45 sensor)
-  co2: 'sensor.gw1100b_wh45_co2',
-  co2_24h: 'sensor.gw1100b_wh45_co2_24h_average',
-  pm25: 'sensor.gw1100b_wh45_pm2_5_co2',
-  pm25_24h: 'sensor.gw1100b_wh45_pm2_5_co2_24h_average',
-  pm10: 'sensor.gw1100b_wh45_pm10_co2',
-  pm10_24h: 'sensor.gw1100b_wh45_pm10_co2_24h_average',
+  // Indoor (WH45 sensor)
   aqTemp: 'sensor.gw1100b_wh45_temperature',
   aqHumidity: 'sensor.gw1100b_wh45_humidity',
-
-  // Soil moisture
-  soilMoisture1: 'sensor.gw1100b_v2_0_4_soil_moisture_1',
-  soilMoisture3: 'sensor.gw1100b_v2_0_4_soil_moisture_3',
-  soilMoisture4: 'sensor.gw1100b_soil_moisture_4',
-  soilMoisture5: 'sensor.gw1100b_soil_moisture_5',
-  soilMoisture6: 'sensor.gw1100b_soil_moisture_6',
 
   // Misc
   waterShutoffTemp: 'sensor.gw1100b_temperature_2',

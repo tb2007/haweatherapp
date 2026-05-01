@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-const ha = axios.create({
+const ha = () => axios.create({
   baseURL: process.env.HA_BASE_URL,
   headers: { Authorization: `Bearer ${process.env.HA_TOKEN}` },
   timeout: 10000,
@@ -20,7 +20,7 @@ router.get('/states', async (req, res) => {
     if (!ids?.length) return res.status(400).json({ error: 'ids required' });
 
     const results = await Promise.allSettled(
-      ids.map((id) => ha.get(`/api/states/${id}`))
+      ids.map((id) => ha().get(`/api/states/${id}`))
     );
 
     const states = {};
@@ -47,7 +47,7 @@ router.get('/history/:entityId', async (req, res) => {
     const start = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
     const end = new Date().toISOString();
 
-    const { data } = await ha.get(
+    const { data } = await ha().get(
       `/api/history/period/${start}?end_time=${end}&filter_entity_id=${entityId}&minimal_response=true&no_attributes=true`
     );
 
