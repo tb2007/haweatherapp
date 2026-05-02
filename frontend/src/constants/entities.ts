@@ -1,7 +1,6 @@
 export const ENTITIES = {
   // Atmosphere
-  temperature: 'sensor.gw1100b_v2_0_4_temperature_1',
-  windchill: 'sensor.gw1100b_v2_0_4_windchill',
+  temperature: 'sensor.gw1100b_v2_0_4_outdoor_temperature',
   pressure: 'sensor.gw1100b_v2_0_4_relative_pressure',
   uvIndex: 'sensor.gw1100b_v2_0_4_uv_index',
   solarRadiation: 'sensor.gw1100b_v2_0_4_solar_radiation',
@@ -18,11 +17,7 @@ export const ENTITIES = {
   yearlyRain: 'sensor.gw1100b_v2_0_4_yearly_rain_rate',
 
   // Indoor (WH45 sensor)
-  aqTemp: 'sensor.gw1100b_wh45_temperature',
   aqHumidity: 'sensor.gw1100b_wh45_humidity',
-
-  // Misc
-  waterShutoffTemp: 'sensor.gw1100b_temperature_2',
 } as const;
 
 export const CURRENT_ENTITY_IDS = Object.values(ENTITIES).join(',');

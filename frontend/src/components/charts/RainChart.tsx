@@ -16,10 +16,10 @@ function Inner({ hours }: { hours: number }) {
   );
 }
 
-export function RainChart() {
+export function RainChart({ hours }: { hours: number }) {
   return (
-    <ChartContainer title="Rainfall">
-      {(hours) => <Inner hours={hours} />}
+    <ChartContainer title="Rainfall" hours={hours}>
+      {(h) => <Inner hours={h} />}
     </ChartContainer>
   );
 }

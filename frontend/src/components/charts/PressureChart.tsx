@@ -11,14 +11,16 @@ function Inner({ hours }: { hours: number }) {
     <BaseChart
       series={[{ key: 'pressure', label: 'Pressure', color: '#a78bfa', data: data ?? [] }]}
       unit="hPa"
+      decimals={2}
+      yAxisWidth={90}
     />
   );
 }
 
-export function PressureChart() {
+export function PressureChart({ hours }: { hours: number }) {
   return (
-    <ChartContainer title="Relative Pressure">
-      {(hours) => <Inner hours={hours} />}
+    <ChartContainer title="Relative Pressure" hours={hours}>
+      {(h) => <Inner hours={h} />}
     </ChartContainer>
   );
 }

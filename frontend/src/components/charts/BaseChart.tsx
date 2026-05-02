@@ -22,6 +22,8 @@ interface Props {
   unit?: string;
   height?: number;
   yDomain?: [number | 'auto', number | 'auto'];
+  decimals?: number;
+  yAxisWidth?: number;
 }
 
 function mergeTimelines(seriesList: Series[]) {
@@ -39,12 +41,13 @@ function fmtTime(ts: number) {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export function BaseChart({ series, unit = '', height = 200, yDomain }: Props) {
+export function BaseChart({ series, unit = '', height = 200, yDomain = ['auto', 'auto'], decimals = 1, yAxisWidth }: Props) {
   const merged = mergeTimelines(series);
+  const leftMargin = yAxisWidth ? 0 : -16;
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={merged} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+      <AreaChart data={merged} margin={{ top: 4, right: 8, left: leftMargin, bottom: 0 }}>
         <defs>
           {series.map((s) => (
             <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -67,16 +70,18 @@ export function BaseChart({ series, unit = '', height = 200, yDomain }: Props) {
         />
         <YAxis
           domain={yDomain}
+          width={yAxisWidth}
           tick={{ fill: '#94a3b8', fontSize: 11 }}
           tickLine={false}
           axisLine={false}
           unit={unit ? ` ${unit}` : undefined}
+          tickFormatter={(v: number) => v.toFixed(decimals)}
         />
         <Tooltip
           contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
           labelStyle={{ color: '#94a3b8', fontSize: 11 }}
           labelFormatter={(v) => new Date(v as number).toLocaleString()}
-          formatter={(v: number, name: string) => [`${v.toFixed(1)} ${unit}`, name]}
+          formatter={(v: number, name: string) => [`${v.toFixed(decimals)} ${unit}`, name]}
         />
         {series.length > 1 && (
           <Legend wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />

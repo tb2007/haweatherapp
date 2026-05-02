@@ -43,7 +43,7 @@ weatherapp/
 ├── api/
 │   ├── Dockerfile
 │   ├── package.json
-│   ├── server.js               # Express app, rate limiting, helmet
+│   ├── server.js               # Express app, rate limiting, helmet, dotenv
 │   ├── middleware/
 │   │   └── auth.js             # JWT cookie verification
 │   └── routes/
@@ -56,46 +56,50 @@ weatherapp/
     ├── vite.config.ts          # dev: proxies /api → localhost:3001
     ├── tailwind.config.js
     └── src/
-        ├── api/client.ts           # Axios instance; 401 → redirect to /login
-        ├── constants/entities.ts   # All HA entity IDs + poll/refresh intervals
+        ├── api/client.ts           # Axios instance; 401 → redirect to /login (skipped on /login)
+        ├── constants/entities.ts   # Active HA entity IDs + poll/refresh intervals
         ├── contexts/AuthContext.tsx # Session state, login/logout
         ├── hooks/
         │   ├── useCurrentWeather.ts   # Polls all entities every 30s
         │   ├── useHistoricalData.ts   # HA history API, refreshes every 5min
-        │   └── useWebcam.ts           # Fetches webcam config once
+        │   ├── useWebcam.ts           # Fetches webcam config once
+        │   ├── useForecast.ts         # Open-Meteo hourly forecast + sunrise/sunset, 30min refresh
+        │   ├── useNWSAlerts.ts        # NWS active alerts for Jefferson County, 10min refresh
+        │   ├── useAirQuality.ts       # Open-Meteo US AQI + PM2.5, 30min refresh
+        │   └── usePressureTrend.ts    # Computes rising/falling/steady from last 3h pressure
         ├── pages/
         │   ├── Login.tsx
-        │   └── Dashboard.tsx
+        │   └── Dashboard.tsx          # Tab layout: Current | History
         └── components/
-            ├── layout/Header.tsx
+            ├── layout/Header.tsx      # Sticky header with last-updated timestamp
+            ├── alerts/AlertBanner.tsx # NWS alert banner, color-coded by severity
             ├── current/
-            │   ├── WeatherHero.tsx       # Temperature hero + key stats
-            │   ├── StatCard.tsx          # Reusable metric tile
-            │   ├── WindCompass.tsx       # SVG compass rose
-            │   ├── RainPanel.tsx
-            │   ├── AirQualityPanel.tsx   # CO2/PM with color thresholds
-            │   └── SoilPanel.tsx         # Moisture bars for 5 zones
+            │   ├── WeatherHero.tsx    # Temp, feels like, condition icon, pressure trend, sunrise/sunset
+            │   ├── StatCard.tsx       # Reusable metric tile
+            │   ├── WindCompass.tsx    # SVG compass rose
+            │   ├── RainPanel.tsx      # Total/weekly/yearly rain stat cards
+            │   └── AQIPanel.tsx       # US AQI + PM2.5 from Open-Meteo, color-coded
+            ├── forecast/
+            │   └── HourlyForecast.tsx # 24h scrollable cards: time, icon, condition, temp, wind
             ├── charts/
-            │   ├── BaseChart.tsx         # Shared Recharts AreaChart wrapper
-            │   ├── ChartContainer.tsx    # Title + TimeRangePicker wrapper
-            │   ├── TemperatureChart.tsx
-            │   ├── PressureChart.tsx
-            │   ├── WindChart.tsx
-            │   ├── RainChart.tsx
-            │   ├── AirQualityChart.tsx   # CO2Chart + PMChart
-            │   └── SoilChart.tsx
-            ├── webcam/WebcamPanel.tsx    # HLS (hls.js), MJPEG, YouTube
+            │   ├── BaseChart.tsx         # Shared Recharts AreaChart wrapper (decimals, yAxisWidth props)
+            │   ├── ChartContainer.tsx    # Title wrapper; hours passed from Dashboard global picker
+            │   ├── TemperatureChart.tsx  # Full-width; Low/High badges
+            │   ├── PressureChart.tsx     # 2 decimal places, wide Y-axis
+            │   ├── WindChart.tsx         # Rolling average smoothing; Max Wind/Max Gust badges
+            │   ├── RainChart.tsx         # Cumulative total rain area chart
+            │   └── DailyRainChart.tsx    # Bar chart of daily rain totals (7 days, computed from cumulative)
+            ├── webcam/WebcamPanel.tsx    # HLS (hls.js), MJPEG, YouTube; hidden if RTSP_URL unset
             └── ui/
                 ├── LoadingSpinner.tsx
-                └── TimeRangePicker.tsx   # 6h / 24h / 48h / 7d
+                └── TimeRangePicker.tsx   # 6h / 24h / 48h / 7d — global for History tab
 ```
 
-## Home Assistant Entities (Ecowitt GW1100B)
+## Active Home Assistant Entities (Ecowitt GW1100B)
 
 | Sensor | Entity ID |
 |---|---|
-| Temperature | `sensor.gw1100b_v2_0_4_temperature_1` |
-| Windchill | `sensor.gw1100b_v2_0_4_windchill` |
+| Outdoor Temperature | `sensor.gw1100b_v2_0_4_outdoor_temperature` |
 | Relative Pressure | `sensor.gw1100b_v2_0_4_relative_pressure` |
 | Wind Speed | `sensor.gw1100b_v2_0_4_wind_speed` |
 | Wind Gust | `sensor.gw1100b_v2_0_4_wind_gust` |
@@ -106,20 +110,17 @@ weatherapp/
 | Total Rain | `sensor.gw1100b_v2_0_4_total_rain` |
 | Weekly Rain | `sensor.gw1100b_v2_0_4_weekly_rain_rate` |
 | Yearly Rain | `sensor.gw1100b_v2_0_4_yearly_rain_rate` |
-| CO₂ | `sensor.gw1100b_wh45_co2` |
-| CO₂ 24h avg | `sensor.gw1100b_wh45_co2_24h_average` |
-| PM2.5 | `sensor.gw1100b_wh45_pm2_5_co2` |
-| PM2.5 24h avg | `sensor.gw1100b_wh45_pm2_5_co2_24h_average` |
-| PM10 | `sensor.gw1100b_wh45_pm10_co2` |
-| PM10 24h avg | `sensor.gw1100b_wh45_pm10_co2_24h_average` |
-| Indoor Temp (WH45) | `sensor.gw1100b_wh45_temperature` |
 | Indoor Humidity (WH45) | `sensor.gw1100b_wh45_humidity` |
-| Soil Moisture 1 | `sensor.gw1100b_v2_0_4_soil_moisture_1` |
-| Soil Moisture 3 | `sensor.gw1100b_v2_0_4_soil_moisture_3` |
-| Soil Moisture 4 | `sensor.gw1100b_soil_moisture_4` |
-| Soil Moisture 5 | `sensor.gw1100b_soil_moisture_5` |
-| Soil Moisture 6 | `sensor.gw1100b_soil_moisture_6` |
-| Water Shutoff Temp | `sensor.gw1100b_temperature_2` |
+
+Removed from tracking: CO₂, PM2.5, PM10 (using Open-Meteo AQI instead), soil moisture sensors, windchill, water shutoff temp display.
+
+## External APIs (no keys required)
+
+| API | Usage | Refresh |
+|---|---|---|
+| Open-Meteo forecast | Hourly temp, apparent temp, weather code, wind + daily sunrise/sunset | 30 min |
+| Open-Meteo air quality | US AQI, PM2.5 for Lakewood, CO (39.690, -105.124) | 30 min |
+| weather.gov NWS | Active alerts for point 39.690,-105.124 (Jefferson County) | 10 min |
 
 ## Environment Variables
 
@@ -134,6 +135,20 @@ Copy `.env.example` to `.env` and fill in all values before deploying.
 | `JWT_SECRET` | Random 64-char string for signing JWTs — generate with `openssl rand -hex 32` |
 | `RTSP_URL` | RTSP stream URL, e.g. `rtsp://user:pass@ip:554/stream`. Leave blank to disable the webcam panel. |
 
+## Local Development
+
+```bash
+# Terminal 1 — API on :3001
+cd api && node server.js
+
+# Terminal 2 — Frontend on :5173
+cd frontend && npm run dev
+```
+
+**Important:** Use `node server.js` directly, not `npm run dev`. The `--watch` flag keeps the process alive across crashes and preserves in-memory rate limit state, causing spurious "too many requests" errors during dev.
+
+The `.env` file must be at the project root (`weatherapp/.env`). dotenv is configured to look one directory up from `api/server.js`.
+
 ## Deployment
 
 ```bash
@@ -145,53 +160,34 @@ docker compose up -d --build
 
 Point your nginx reverse proxy at port `3000`. TLS is handled by the external proxy.
 
-Recommended external nginx snippet:
-```nginx
-location / {
-    proxy_pass http://localhost:3000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
 ## Webcam Setup (RTSP)
 
-RTSP cannot play natively in a browser. go2rtc runs as a sidecar container inside the Docker Compose stack and transcodes RTSP → HLS. The browser only ever sees a same-origin `/go2rtc/` path — the RTSP URL never leaves the server.
+Set `RTSP_URL` in `.env`. go2rtc transcodes RTSP → HLS internally; the RTSP URL never reaches the browser.
 
-**Setup:**
-Set `RTSP_URL` in `.env`:
-```
-RTSP_URL=rtsp://user:pass@camera-ip:554/stream
-```
-
-That's it. On `docker compose up`, go2rtc starts, ingests the stream, and the frontend fetches HLS from `/go2rtc/api/stream.m3u8?src=camera` via the nginx proxy.
-
-**How it works:**
 ```
 Browser → nginx (/go2rtc/) → go2rtc:1984 → RTSP camera
 ```
 
-The `go2rtc/go2rtc.yaml` config defines a single stream named `camera` sourced from `${RTSP_URL}`. The API webcam endpoint checks if `RTSP_URL` is set and returns the HLS path; if not set, the webcam panel is hidden.
-
-**Webcam disabled:** leave `RTSP_URL` blank in `.env`.
+Leave `RTSP_URL` blank to disable the webcam panel entirely.
 
 ## Live Data
 
 - Current conditions poll every **30 seconds** via React Query
 - Historical charts refresh every **5 minutes** in background
-- Time ranges available: 6h / 24h / 48h / 7d
-- Last updated timestamp shown in the header
+- Forecast + AQI refresh every **30 minutes**
+- NWS alerts refresh every **10 minutes**
+- Global time range picker (6h / 24h / 48h / 7d) controls all history charts simultaneously
+- Last updated timestamp shown in sticky header
 
 ## Security Design
 
 - HA token stored only in API container env — never sent to browser
 - Auth uses httpOnly, SameSite=strict cookies — not accessible to JavaScript (XSS-safe)
-- Login endpoint rate-limited to 10 attempts per 15 minutes
+- Login endpoint rate-limited to 10 attempts/15 min in production (100 in dev)
 - All API routes rate-limited to 120 req/min
 - `helmet` sets security headers on all API responses
 - `trust proxy` enabled for correct IP detection behind nginx
+- 401 redirect skipped when already on `/login` to prevent infinite reload loop
 
 ## Key Design Decisions
 
@@ -200,6 +196,7 @@ The `go2rtc/go2rtc.yaml` config defines a single stream named `camera` sourced f
 | Live updates | Polling (30s) | Simpler than WebSocket; weather data doesn't need sub-second latency |
 | Auth storage | httpOnly cookie | Survives page reload; immune to XSS vs localStorage/memory |
 | Token location | API container only | Internet-exposed app; token in browser bundle is unacceptable |
+| AQI source | Open-Meteo (not HA WH45) | Station CO₂/PM sensors removed from tracking; Open-Meteo provides calibrated AQI |
 | Charts | Recharts | React-native, responsive containers, no D3 imperative code |
 | State management | TanStack Query only | All state is server data; no Redux/Zustand needed |
 | Build | Multi-stage Docker | Node builder → nginx:alpine; minimal runtime image |

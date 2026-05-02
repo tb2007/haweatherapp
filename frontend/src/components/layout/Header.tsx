@@ -4,7 +4,7 @@ export function Header({ lastUpdated }: { lastUpdated: Date | null }) {
   const { username, logout } = useAuth();
 
   return (
-    <header className="flex items-center justify-between border-b border-slate-700 bg-slate-800/80 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-700/60 bg-slate-900/90 px-4 py-3 backdrop-blur">
       <div className="flex items-center gap-3">
         <span className="text-xl">🌤</span>
         <h1 className="text-base font-semibold tracking-wide text-slate-100">Weather Station</h1>
