@@ -1,33 +1,16 @@
-import { useEffect, useRef } from 'react';
-import Hls from 'hls.js';
 import { useWebcam } from '../../hooks/useWebcam';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
-function HlsPlayer({ url }: { url: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = ref.current;
-    if (!video) return;
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      return () => hls.destroy();
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-    }
-  }, [url]);
-
+function Go2rtcPlayer({ streamName }: { streamName: string }) {
   return (
-    <video
-      ref={ref}
-      autoPlay
-      muted
-      playsInline
-      controls
-      className="w-full rounded-lg"
-    />
+    <div className="aspect-video w-full overflow-hidden rounded-lg">
+      <iframe
+        className="h-full w-full"
+        src={`/go2rtc/stream.html?src=${streamName}&mode=webrtc,mse`}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    </div>
   );
 }
 
@@ -68,7 +51,7 @@ export function WebcamPanel() {
         Live Camera
       </h2>
       <div className="rounded-xl bg-slate-800 p-4 shadow">
-        {data.type === 'hls' && <HlsPlayer url={data.url} />}
+        {data.type === 'hls' && <Go2rtcPlayer streamName={data.url} />}
         {data.type === 'youtube' && <YouTubeEmbed url={data.url} />}
         {data.type === 'mjpeg' && <MjpegPlayer url={data.url} />}
       </div>

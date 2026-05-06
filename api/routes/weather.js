@@ -71,7 +71,7 @@ router.get('/webcam', (req, res) => {
   const enabled = !!process.env.RTSP_URL;
   res.json({
     type: enabled ? 'hls' : 'disabled',
-    url: enabled ? '/go2rtc/api/stream.m3u8?src=camera' : '',
+    url: enabled ? 'camera' : '',
   });
 });
 
