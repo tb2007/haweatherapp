@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /opt/haweatherapp
+          git pull origin main
+
+      - name: Build and restart containers
+        run: |
+          cd /opt/haweatherapp
+          docker compose up -d --build
+
+      - name: Remove dangling images
+        run: docker image prune -f
