@@ -11,6 +11,7 @@ services:
       APP_PASSWORD: ${APP_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       RTSP_URL: ${RTSP_URL:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
     networks:
       - internal
     expose:
