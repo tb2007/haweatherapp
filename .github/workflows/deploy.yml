@@ -13,12 +13,12 @@ jobs:
     steps:
       - name: Pull latest code
         run: |
-          cd /opt/haweatherapp
+          cd /media/dockerdata/haweatherapp
           git pull origin main
 
       - name: Build and restart containers
         run: |
-          cd /opt/haweatherapp
+          cd /media/dockerdata/haweatherapp
           docker compose up -d --build
 
       - name: Remove dangling images
