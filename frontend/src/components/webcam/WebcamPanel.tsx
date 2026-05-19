@@ -6,7 +6,7 @@ function Go2rtcPlayer({ streamName }: { streamName: string }) {
     <div className="aspect-video w-full overflow-hidden rounded-lg">
       <iframe
         className="h-full w-full"
-        src={`/go2rtc/stream.html?src=${streamName}&mode=webrtc,mse`}
+        src={`/go2rtc/stream.html?src=${streamName}&mode=hls,mse`}
         allow="autoplay; encrypted-media"
         allowFullScreen
       />
