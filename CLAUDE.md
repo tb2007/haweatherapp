@@ -134,6 +134,7 @@ Copy `.env.example` to `.env` and fill in all values before deploying.
 | `APP_PASSWORD` | Login password for the web app |
 | `JWT_SECRET` | Random 64-char string for signing JWTs — generate with `openssl rand -hex 32` |
 | `RTSP_URL` | RTSP stream URL, e.g. `rtsp://user:pass@ip:554/stream`. Leave blank to disable the webcam panel. |
+| `COOKIE_SECURE` | Set to `false` when testing over plain HTTP (no TLS). Defaults to `true` — cookie is HTTPS-only in production. |
 
 ## Local Development
 
@@ -159,6 +160,39 @@ docker compose up -d --build
 ```
 
 Point your nginx reverse proxy at port `3000`. TLS is handled by the external proxy.
+
+## Auto-Deploy via GitHub Actions
+
+A self-hosted GitHub Actions runner on the Docker host auto-deploys on every push to `main`.
+
+**Host setup (one-time):**
+```bash
+# Clone to deployment directory
+sudo mkdir -p /media/dockerdata/haweatherapp
+sudo chown plex:plex /media/dockerdata/haweatherapp
+git clone https://github.com/tb2007/haweatherapp.git /media/dockerdata/haweatherapp
+
+# Install runner (get token from GitHub → Settings → Actions → Runners)
+mkdir -p ~/actions-runner && cd ~/actions-runner
+# paste download + config commands from GitHub, then:
+sudo ./svc.sh install && sudo ./svc.sh start
+
+# Add runner user to docker group
+sudo usermod -aG docker plex
+```
+
+**Runner runs as:** `plex` user (all files in `/media/dockerdata/haweatherapp/` must be owned by `plex`)
+
+**On every push to `main` the workflow:**
+1. `git pull origin main` in `/media/dockerdata/haweatherapp`
+2. `docker compose up -d --build`
+3. `docker image prune -f`
+
+Manual deploy: GitHub → Actions → Deploy → Run workflow
+
+**Known gotchas:**
+- Runner files must be owned by the same user the service runs as (`plex`). If you see permission errors: `sudo chown -R plex:plex /media/dockerdata/haweatherapp`
+- Add the deployment dir as a git safe directory for the runner user: `sudo -u plex git config --global --add safe.directory /media/dockerdata/haweatherapp`
 
 ## Webcam Setup (RTSP)
 
@@ -188,6 +222,7 @@ Leave `RTSP_URL` blank to disable the webcam panel entirely.
 - `helmet` sets security headers on all API responses
 - `trust proxy` enabled for correct IP detection behind nginx
 - 401 redirect skipped when already on `/login` to prevent infinite reload loop
+- `COOKIE_SECURE=false` disables the secure flag for HTTP-only local testing — never use in production behind HTTPS
 
 ## Key Design Decisions
 
