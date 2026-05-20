@@ -2,13 +2,15 @@ import { useWebcam } from '../../hooks/useWebcam';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 function Go2rtcPlayer({ streamName }: { streamName: string }) {
+  // Use direct MJPEG img tag — works on desktop and mobile Safari.
+  // The go2rtc iframe player's MJPEG mode fails on iOS (falls back to
+  // HLS which stutters every 5s due to UniFi's fixed keyframe interval).
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-lg">
-      <iframe
-        className="h-full w-full"
-        src={`/go2rtc/stream.html?src=${streamName}&mode=mjpeg,mse,hls`}
-        allow="autoplay; encrypted-media"
-        allowFullScreen
+    <div className="aspect-video w-full overflow-hidden rounded-lg bg-black flex items-center justify-center">
+      <img
+        src={`/go2rtc/api/stream.mjpeg?src=${streamName}`}
+        alt="Live Camera"
+        className="h-full w-full object-contain"
       />
     </div>
   );
