@@ -19,7 +19,7 @@ jobs:
       - name: Build and restart containers
         run: |
           cd /media/dockerdata/haweatherapp
-          docker compose up -d --build
+          docker compose up -d --build --force-recreate
 
       - name: Remove dangling images
         run: docker image prune -f
