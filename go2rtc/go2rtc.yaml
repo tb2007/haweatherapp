@@ -1,6 +1,9 @@
 api:
   listen: ":1984"
 
+ffmpeg:
+  bin: ffmpeg
+
 streams:
   camera:
     - ${RTSP_URL}
