@@ -29,7 +29,7 @@ services:
       - go2rtc
 
   go2rtc:
-    image: alexxit/go2rtc
+    build: ./go2rtc
     restart: unless-stopped
     environment:
       RTSP_URL: ${RTSP_URL:-}
