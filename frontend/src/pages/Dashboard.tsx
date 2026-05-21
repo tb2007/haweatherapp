@@ -11,7 +11,6 @@ import { WebcamPanel } from '../components/webcam/WebcamPanel';
 import { TemperatureChart } from '../components/charts/TemperatureChart';
 import { PressureChart } from '../components/charts/PressureChart';
 import { WindChart } from '../components/charts/WindChart';
-import { RainChart } from '../components/charts/RainChart';
 import { DailyRainChart } from '../components/charts/DailyRainChart';
 import { TimeRangePicker } from '../components/ui/TimeRangePicker';
 
@@ -100,9 +99,6 @@ export function Dashboard() {
                 </div>
                 <WindChart hours={hours} />
                 <PressureChart hours={hours} />
-                <div className="lg:col-span-2">
-                  <RainChart hours={hours} />
-                </div>
                 <div className="lg:col-span-2">
                   <DailyRainChart />
                 </div>
