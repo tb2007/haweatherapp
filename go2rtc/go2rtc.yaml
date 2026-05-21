@@ -7,7 +7,7 @@ ffmpeg:
 streams:
   camera:
     - ${RTSP_URL}
-    - ffmpeg:camera#video=mjpeg&fps=10
+    - ffmpeg:camera#video=mjpeg
 
 log:
   level: warn
