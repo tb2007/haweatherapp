@@ -1,23 +1,49 @@
+import { useState } from 'react';
 import { useWebcam } from '../../hooks/useWebcam';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 function Go2rtcPlayer({ streamName }: { streamName: string }) {
-  // Use direct MJPEG img tag — works on desktop and mobile Safari.
-  // The go2rtc iframe player's MJPEG mode fails on iOS (falls back to
-  // HLS which stutters every 5s due to UniFi's fixed keyframe interval).
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-lg bg-black flex items-center justify-center">
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
+      {/* Live badge */}
+      {loaded && !error && (
+        <div className="absolute left-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+          LIVE
+        </div>
+      )}
+
+      {/* Loading state */}
+      {!loaded && !error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
+          <LoadingSpinner size="lg" />
+          <span className="text-xs">Connecting to camera…</span>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
+          <span className="text-5xl">📷</span>
+          <span className="text-sm font-medium">Camera unavailable</span>
+        </div>
+      )}
+
       <img
         src={`/go2rtc/api/stream.mjpeg?src=${streamName}`}
         alt="Live Camera"
-        className="h-full w-full object-contain"
+        className={`h-full w-full object-contain transition-opacity duration-500 ${loaded && !error ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => { setLoaded(false); setError(true); }}
       />
     </div>
   );
 }
 
 function YouTubeEmbed({ url }: { url: string }) {
-  // Accept both full URLs and video IDs
   const id = url.includes('watch?v=')
     ? url.split('watch?v=')[1].split('&')[0]
     : url.includes('youtu.be/')
@@ -36,9 +62,7 @@ function YouTubeEmbed({ url }: { url: string }) {
 }
 
 function MjpegPlayer({ url }: { url: string }) {
-  return (
-    <img src={url} alt="Webcam" className="w-full rounded-lg" />
-  );
+  return <img src={url} alt="Webcam" className="w-full rounded-lg" />;
 }
 
 export function WebcamPanel() {

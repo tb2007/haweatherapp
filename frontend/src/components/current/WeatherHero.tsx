@@ -15,10 +15,10 @@ function weatherCondition(solar: number | null, lux: number | null): { icon: str
   return                          { icon: '🌫️', label: 'Overcast' };
 }
 
-function TrendArrow({ trend }: { trend: PressureTrend }) {
-  if (trend === 'rising')  return <span className="text-green-400 font-bold">↑</span>;
-  if (trend === 'falling') return <span className="text-red-400 font-bold">↓</span>;
-  return <span className="text-slate-400">→</span>;
+function TrendBadge({ trend }: { trend: PressureTrend }) {
+  if (trend === 'rising')  return <span className="inline-flex items-center gap-1 rounded-full bg-green-900/50 px-2 py-0.5 text-xs font-medium text-green-400">↑ Rising</span>;
+  if (trend === 'falling') return <span className="inline-flex items-center gap-1 rounded-full bg-red-900/50 px-2 py-0.5 text-xs font-medium text-red-400">↓ Falling</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-slate-700/60 px-2 py-0.5 text-xs font-medium text-slate-400">→ Steady</span>;
 }
 
 function fmtSunTime(iso: string): string {
@@ -47,45 +47,47 @@ export function WeatherHero() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl bg-gradient-to-br from-sky-900/60 to-slate-800 p-6 shadow-lg">
-        {/* Condition */}
-        <div className="mb-3 flex items-center gap-2">
+        {/* Condition row */}
+        <div className="mb-4 flex items-center gap-2">
           <span className="text-4xl">{condition.icon}</span>
           <span className="text-sm font-medium text-slate-300">{condition.label}</span>
         </div>
 
-        {/* Temperature + feels like */}
-        <div className="flex items-baseline gap-3">
-          <div className="text-6xl font-extrabold text-sky-300">
+        {/* Temperature — large and dominant */}
+        <div className="flex items-end gap-4">
+          <div className="text-7xl font-extrabold leading-none text-sky-300">
             {temp != null ? temp.toFixed(1) : '—'}
-            <span className="ml-1 text-2xl font-normal text-slate-400">
+            <span className="ml-1 text-3xl font-normal text-slate-400">
               {unit(data, ENTITIES.temperature)}
             </span>
           </div>
           {feelsLike != null && (
-            <span className="text-sm text-slate-400">
-              Feels like <strong className="text-slate-200">{feelsLike}°</strong>
-            </span>
+            <div className="mb-1 text-sm text-slate-400">
+              Feels like<br />
+              <strong className="text-lg text-slate-200">{feelsLike}°</strong>
+            </div>
           )}
         </div>
 
-        {/* Stats row */}
-        <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
-          <span>
-            Pressure:{' '}
-            <strong className="text-slate-200">{val(data, ENTITIES.pressure)} {unit(data, ENTITIES.pressure)}</strong>
-            {trend && <span className="ml-1"><TrendArrow trend={trend} /></span>}
+        {/* Pressure + trend badge */}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm text-slate-400">
+            Pressure: <strong className="text-slate-200">{val(data, ENTITIES.pressure)} {unit(data, ENTITIES.pressure)}</strong>
           </span>
-          <span>Solar: <strong className="text-slate-200">{val(data, ENTITIES.solarRadiation)} W/m²</strong></span>
-          <span>Lux: <strong className="text-slate-200">{val(data, ENTITIES.solarLux)}</strong></span>
+          {trend && <TrendBadge trend={trend} />}
         </div>
 
-        {/* Sunrise / sunset */}
-        {sunTimes && (
-          <div className="mt-3 flex gap-4 text-sm text-slate-400">
-            <span>🌅 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
-            <span>🌇 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
-          </div>
-        )}
+        {/* Solar + sun times row */}
+        <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
+          <span>Solar: <strong className="text-slate-200">{val(data, ENTITIES.solarRadiation)} W/m²</strong></span>
+          <span>Lux: <strong className="text-slate-200">{val(data, ENTITIES.solarLux)}</strong></span>
+          {sunTimes && (
+            <>
+              <span>🌅 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
+              <span>🌇 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
+            </>
+          )}
+        </div>
       </div>
 
       <WindCompass

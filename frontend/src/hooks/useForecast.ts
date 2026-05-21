@@ -6,10 +6,11 @@ export interface ForecastHour {
   feelsLike: number;
   weatherCode: number;
   windSpeed: number;
+  precipProb: number;
 }
 
 export interface SunTimes {
-  sunrise: string; // ISO datetime string
+  sunrise: string;
   sunset: string;
 }
 
@@ -22,7 +23,7 @@ async function fetchForecast(): Promise<ForecastResult> {
   const url =
     'https://api.open-meteo.com/v1/forecast' +
     '?latitude=39.690&longitude=-105.124' +
-    '&hourly=temperature_2m,weather_code,windspeed_10m,apparent_temperature' +
+    '&hourly=temperature_2m,weather_code,windspeed_10m,apparent_temperature,precipitation_probability' +
     '&daily=sunrise,sunset' +
     '&temperature_unit=fahrenheit&wind_speed_unit=mph' +
     '&timezone=America%2FDenver&forecast_days=2';
@@ -31,7 +32,7 @@ async function fetchForecast(): Promise<ForecastResult> {
   if (!res.ok) throw new Error('Forecast fetch failed');
   const json = await res.json();
 
-  const { time, temperature_2m, weather_code, windspeed_10m, apparent_temperature } = json.hourly;
+  const { time, temperature_2m, weather_code, windspeed_10m, apparent_temperature, precipitation_probability } = json.hourly;
   const now = Date.now();
 
   const hours = (time as string[])
@@ -41,6 +42,7 @@ async function fetchForecast(): Promise<ForecastResult> {
       feelsLike: apparent_temperature[i],
       weatherCode: weather_code[i],
       windSpeed: windspeed_10m[i],
+      precipProb: precipitation_probability[i] ?? 0,
     }))
     .filter((h) => new Date(h.time).getTime() >= now)
     .slice(0, 24);
@@ -54,7 +56,7 @@ async function fetchForecast(): Promise<ForecastResult> {
 
 export function useForecast() {
   return useQuery({
-    queryKey: ['hourly-forecast-v2'],
+    queryKey: ['hourly-forecast-v3'],
     queryFn: fetchForecast,
     staleTime: 30 * 60 * 1000,
     refetchInterval: 30 * 60 * 1000,
