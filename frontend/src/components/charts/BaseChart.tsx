@@ -41,7 +41,7 @@ function fmtTime(ts: number) {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export function BaseChart({ series, unit = '', height = 200, yDomain = ['auto', 'auto'], decimals = 1, yAxisWidth }: Props) {
+export function BaseChart({ series, unit = '', height = 260, yDomain = ['auto', 'auto'], decimals = 1, yAxisWidth }: Props) {
   const merged = mergeTimelines(series);
   const leftMargin = yAxisWidth ? 0 : -16;
 

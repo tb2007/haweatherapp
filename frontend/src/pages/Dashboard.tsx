@@ -35,8 +35,8 @@ export function Dashboard() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800/80">
       <Header lastUpdated={updated} />
 
-      {/* Tab bar */}
-      <div className="sticky top-[53px] z-40 border-b border-slate-700/60 bg-slate-900/90 px-4 backdrop-blur sm:px-6 lg:px-8">
+      {/* Desktop tab bar — hidden on mobile */}
+      <div className="sticky top-[53px] z-40 hidden border-b border-slate-700/60 bg-slate-900/90 px-4 backdrop-blur lg:block sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl gap-1 py-2">
           {(['current', 'history'] as Tab[]).map((t) => (
             <button
@@ -54,14 +54,14 @@ export function Dashboard() {
         </div>
       </div>
 
-      <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      {/* Main content — extra bottom padding on mobile for bottom nav */}
+      <main className="flex-1 px-4 py-6 pb-24 lg:pb-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-8">
 
           {tab === 'current' && (
             <>
               <AlertBanner />
 
-              {/* Hero + forecast side-by-side on desktop */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
                   <SectionTitle color="bg-sky-500">Current Conditions</SectionTitle>
@@ -109,9 +109,25 @@ export function Dashboard() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-700/60 py-3 text-center text-xs text-slate-500">
-        Ecowitt GW1100B via Home Assistant
+      <footer className="border-t border-slate-700/60 py-3 text-center text-xs text-slate-500 pb-24 lg:pb-3">
+        Lakewood, CO · Personal Weather Station
       </footer>
+
+      {/* Mobile bottom nav — hidden on desktop */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-slate-700/60 bg-slate-900/95 backdrop-blur lg:hidden">
+        {(['current', 'history'] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs font-medium capitalize transition-colors ${
+              tab === t ? 'text-sky-400' : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <span className="text-xl">{t === 'current' ? '🌡️' : '📊'}</span>
+            {t}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

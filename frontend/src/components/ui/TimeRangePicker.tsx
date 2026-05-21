@@ -13,12 +13,12 @@ export function TimeRangePicker({
   onChange: (h: number) => void;
 }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1.5">
       {OPTIONS.map((o) => (
         <button
           key={o.hours}
           onClick={() => onChange(o.hours)}
-          className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
+          className={`min-w-[44px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             hours === o.hours
               ? 'bg-sky-500 text-white'
               : 'bg-slate-700 text-slate-300 hover:bg-slate-600'

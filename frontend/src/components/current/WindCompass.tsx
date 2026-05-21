@@ -13,35 +13,59 @@ export function WindCompass({ degrees, speed, gust, unit }: {
   const deg = degrees ?? 0;
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl bg-slate-800 p-4 shadow">
-      <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-400">Wind</span>
-      <div className="relative h-24 w-24">
-        {/* compass ring */}
+    <div className="flex items-center gap-6 rounded-xl bg-slate-800 p-4 shadow">
+      {/* Compass */}
+      <div className="relative h-36 w-36 shrink-0">
         <svg viewBox="0 0 100 100" className="h-full w-full text-slate-600">
           <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="2" />
-          {['N','E','S','W'].map((d, i) => {
-            const angle = i * 90 - 90;
-            const rad = (angle * Math.PI) / 180;
-            const x = 50 + 36 * Math.cos(rad);
-            const y = 50 + 36 * Math.sin(rad);
-            return <text key={d} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="10" fill="#94a3b8">{d}</text>;
+          {/* Tick marks */}
+          {Array.from({ length: 16 }, (_, i) => {
+            const angle = (i * 22.5 - 90) * (Math.PI / 180);
+            const inner = i % 4 === 0 ? 36 : 40;
+            const outer = 44;
+            return (
+              <line
+                key={i}
+                x1={50 + inner * Math.cos(angle)} y1={50 + inner * Math.sin(angle)}
+                x2={50 + outer * Math.cos(angle)} y2={50 + outer * Math.sin(angle)}
+                stroke={i % 4 === 0 ? '#64748b' : '#334155'} strokeWidth={i % 4 === 0 ? 1.5 : 1}
+              />
+            );
           })}
-          {/* arrow */}
+          {/* Cardinal labels */}
+          {['N','E','S','W'].map((d, i) => {
+            const angle = (i * 90 - 90) * (Math.PI / 180);
+            const x = 50 + 28 * Math.cos(angle);
+            const y = 50 + 28 * Math.sin(angle);
+            return <text key={d} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="600" fill="#94a3b8">{d}</text>;
+          })}
+          {/* Arrow */}
           <g transform={`rotate(${deg}, 50, 50)`}>
-            <polygon points="50,10 54,50 50,44 46,50" fill="#38bdf8" />
-            <polygon points="50,90 54,50 50,56 46,50" fill="#475569" />
+            <polygon points="50,8 54,50 50,42 46,50" fill="#38bdf8" />
+            <polygon points="50,92 54,50 50,58 46,50" fill="#475569" />
           </g>
           <circle cx="50" cy="50" r="4" fill="#38bdf8" />
         </svg>
       </div>
-      <div className="mt-2 text-center">
-        <div className="text-lg font-bold text-sky-400">
-          {speed ?? '—'} <span className="text-sm font-normal text-slate-400">{unit}</span>
+
+      {/* Wind data */}
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-widest text-slate-400">Wind</span>
+        <div>
+          <div className="text-3xl font-extrabold text-sky-400">
+            {speed ?? '—'}
+            <span className="ml-1 text-base font-normal text-slate-400">{unit}</span>
+          </div>
+          <div className="mt-0.5 text-sm text-slate-400">
+            {degrees != null ? `${degToDir(degrees)} · ${Math.round(degrees)}°` : '—'}
+          </div>
         </div>
-        <div className="text-xs text-slate-400">
-          {degrees != null ? `${degToDir(degrees)} (${Math.round(degrees)}°)` : '—'}
-        </div>
-        {gust && <div className="text-xs text-slate-500">Gust: {gust} {unit}</div>}
+        {gust && (
+          <div className="rounded-lg bg-slate-700/60 px-3 py-1.5">
+            <span className="text-xs text-slate-400">Gust</span>
+            <span className="ml-2 text-sm font-bold text-yellow-400">{gust} {unit}</span>
+          </div>
+        )}
       </div>
     </div>
   );
