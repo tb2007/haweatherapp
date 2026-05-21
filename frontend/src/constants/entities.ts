@@ -13,6 +13,7 @@ export const ENTITIES = {
 
   // Rain
   eventRain: 'sensor.gw1100b_v2_0_4_event_rain_rate',
+  totalRain: 'sensor.gw1100b_v2_0_4_total_rain',
   weeklyRain: 'sensor.gw1100b_v2_0_4_weekly_rain_rate',
   yearlyRain: 'sensor.gw1100b_v2_0_4_yearly_rain_rate',
 
