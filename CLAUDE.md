@@ -130,11 +130,11 @@ Copy `.env.example` to `.env` and fill in all values before deploying.
 |---|---|
 | `HA_BASE_URL` | Home Assistant internal URL, e.g. `http://hatb.ad.bpu.link:8123` |
 | `HA_TOKEN` | HA long-lived access token (Profile → Long-Lived Access Tokens) |
-| `APP_USERNAME` | Login username for the web app |
-| `APP_PASSWORD` | Login password for the web app |
-| `JWT_SECRET` | Random 64-char string for signing JWTs — generate with `openssl rand -hex 32` |
-| `RTSP_URL` | RTSP stream URL, e.g. `rtsp://user:pass@ip:554/stream`. Leave blank to disable the webcam panel. |
-| `COOKIE_SECURE` | Set to `false` when testing over plain HTTP (no TLS). Defaults to `true` — cookie is HTTPS-only in production. |
+| `APP_USERNAME` | Login username (kept in .env but auth is disabled — app is public) |
+| `APP_PASSWORD` | Login password (kept in .env but auth is disabled — app is public) |
+| `JWT_SECRET` | JWT signing secret (kept in .env but auth is disabled) |
+| `RTSP_URL` | RTSP stream URL for webcam, e.g. `rtsp://user:pass@ip:7447/token`. Leave blank to disable webcam. |
+| `COOKIE_SECURE` | Set to `false` for HTTP testing. Defaults to `true`. (Moot — auth removed.) |
 
 ## Local Development
 
@@ -196,10 +196,28 @@ Manual deploy: GitHub → Actions → Deploy → Run workflow
 
 ## Webcam Setup (RTSP)
 
-Set `RTSP_URL` in `.env`. go2rtc transcodes RTSP → HLS internally; the RTSP URL never reaches the browser.
+Set `RTSP_URL` in `.env`. go2rtc transcodes RTSP → MJPEG via ffmpeg. The RTSP URL never reaches the browser.
 
 ```
-Browser → nginx (/go2rtc/) → go2rtc:1984 → RTSP camera
+Browser → nginx (/go2rtc/) → go2rtc:1984 (ffmpeg H264→MJPEG) → RTSP camera
+```
+
+**Why MJPEG (not WebRTC or HLS):**
+- WebRTC: fails through nginx reverse proxy — browser gets unreachable Docker-internal ICE candidates
+- HLS: UniFi Protect keyframe interval is ~5s (not configurable) — each segment = 5s stutter
+- MJPEG via `<img>` tag: no keyframe dependency, works on desktop and iOS Safari natively
+
+**go2rtc requires a custom Dockerfile** (adds ffmpeg to base image):
+```
+go2rtc/Dockerfile: FROM alexxit/go2rtc + RUN apk add --no-cache ffmpeg
+```
+
+**go2rtc.yaml streams config:**
+```yaml
+streams:
+  camera:
+    - ${RTSP_URL}           # source
+    - ffmpeg:camera#video=mjpeg  # MJPEG transcoder
 ```
 
 Leave `RTSP_URL` blank to disable the webcam panel entirely.
@@ -216,22 +234,34 @@ Leave `RTSP_URL` blank to disable the webcam panel entirely.
 ## Security Design
 
 - HA token stored only in API container env — never sent to browser
-- Auth uses httpOnly, SameSite=strict cookies — not accessible to JavaScript (XSS-safe)
-- Login endpoint rate-limited to 10 attempts/15 min in production (100 in dev)
+- App is fully **public** — `requireAuth` removed from `/api/weather` routes; no login needed
+- Auth routes (`/api/auth/*`) still exist but are unused; login/logout endpoints remain in case auth is re-enabled
 - All API routes rate-limited to 120 req/min
 - `helmet` sets security headers on all API responses
 - `trust proxy` enabled for correct IP detection behind nginx
-- 401 redirect skipped when already on `/login` to prevent infinite reload loop
-- `COOKIE_SECURE=false` disables the secure flag for HTTP-only local testing — never use in production behind HTTPS
 
 ## Key Design Decisions
 
 | Decision | Choice | Rationale |
 |---|---|---|
+| Auth | None (public) | Weather data isn't sensitive; removed login requirement |
 | Live updates | Polling (30s) | Simpler than WebSocket; weather data doesn't need sub-second latency |
-| Auth storage | httpOnly cookie | Survives page reload; immune to XSS vs localStorage/memory |
-| Token location | API container only | Internet-exposed app; token in browser bundle is unacceptable |
-| AQI source | Open-Meteo (not HA WH45) | Station CO₂/PM sensors removed from tracking; Open-Meteo provides calibrated AQI |
+| Token location | API container only | Internet-exposed app; HA token in browser bundle is unacceptable |
+| AQI source | Open-Meteo (not HA WH45) | Station CO₂/PM sensors removed; Open-Meteo provides calibrated AQI |
+| Webcam | MJPEG via img tag | WebRTC fails through nginx; HLS stutters (UniFi 5s keyframe); MJPEG works everywhere |
 | Charts | Recharts | React-native, responsive containers, no D3 imperative code |
 | State management | TanStack Query only | All state is server data; no Redux/Zustand needed |
 | Build | Multi-stage Docker | Node builder → nginx:alpine; minimal runtime image |
+| Mobile nav | Bottom fixed bar | Thumb-friendly; top tabs unreachable one-handed on phone |
+| Font | Inter (Google Fonts) | Modern, readable, widely used in dashboards |
+
+## UI Design Notes
+
+- **Mobile:** Fixed bottom nav bar (`lg:hidden`), main content has `pb-24` to clear it
+- **Desktop:** Sticky top tab bar (`hidden lg:block`)
+- **StatCards:** `border-l-4` colored left border per category (pass `borderAccent` prop)
+- **AQI:** Gradient bar (green→yellow→orange→red→purple) with white position marker at `(aqi/300)*100%`
+- **Webcam:** `<img>` with `onLoad`/`onError` states + pulsing red LIVE badge overlay
+- **Pressure trend:** Colored pill badge — green "↑ Rising", red "↓ Falling", slate "→ Steady"
+- **Charts:** 260px height (was 200px); DailyRainChart also 260px
+- **Forecast cards:** Show precipitation probability (`💧 %`) from Open-Meteo `precipitation_probability` field
