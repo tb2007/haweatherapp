@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import axios from 'axios';
-import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -9,8 +8,6 @@ const ha = () => axios.create({
   headers: { Authorization: `Bearer ${process.env.HA_TOKEN}` },
   timeout: 10000,
 });
-
-router.use(requireAuth);
 
 // Current state for one or many entities
 // GET /api/weather/states?ids=sensor.foo,sensor.bar
