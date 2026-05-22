@@ -4,7 +4,6 @@ import { ENTITIES } from '../constants/entities';
 import { Header } from '../components/layout/Header';
 import { WeatherHero } from '../components/current/WeatherHero';
 import { RainPanel } from '../components/current/RainPanel';
-import { AQIPanel } from '../components/current/AQIPanel';
 import { HourlyForecast } from '../components/forecast/HourlyForecast';
 import { AlertBanner } from '../components/alerts/AlertBanner';
 import { WebcamPanel } from '../components/webcam/WebcamPanel';
@@ -76,11 +75,6 @@ export function Dashboard() {
               <div>
                 <SectionTitle color="bg-blue-500">Rainfall</SectionTitle>
                 <RainPanel />
-              </div>
-
-              <div>
-                <SectionTitle color="bg-teal-500">Air Quality</SectionTitle>
-                <AQIPanel />
               </div>
 
               <WebcamPanel />
