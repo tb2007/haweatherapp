@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useCurrentWeather, lastUpdated } from '../hooks/useCurrentWeather';
-import { ENTITIES, POLL_INTERVAL_MS } from '../constants/entities';
+import { useCurrentWeather } from '../hooks/useCurrentWeather';
+import { POLL_INTERVAL_MS } from '../constants/entities';
 import { Header } from '../components/layout/Header';
 import { WeatherHero } from '../components/current/WeatherHero';
 import { RainPanel } from '../components/current/RainPanel';
@@ -25,14 +25,14 @@ function SectionTitle({ color, children }: { color: string; children: React.Reac
 }
 
 export function Dashboard() {
-  const { data } = useCurrentWeather();
-  const updated = lastUpdated(data, ENTITIES.temperature);
+  const { dataUpdatedAt } = useCurrentWeather();
+  const lastFetched = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
   const [tab, setTab] = useState<Tab>('current');
   const [hours, setHours] = useState(24);
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800/80">
-      <Header lastUpdated={updated} pollIntervalMs={POLL_INTERVAL_MS} />
+      <Header lastUpdated={lastFetched} pollIntervalMs={POLL_INTERVAL_MS} />
 
       {/* Desktop tab bar — hidden on mobile */}
       <div className="sticky top-[53px] z-40 hidden border-b border-slate-700/60 bg-slate-900/90 px-4 backdrop-blur lg:block sm:px-6 lg:px-8">
