@@ -86,6 +86,9 @@ export function WeatherHero() {
             Pressure: <strong className="text-slate-200">{val(data, ENTITIES.pressure)} {unit(data, ENTITIES.pressure)}</strong>
           </span>
           {trend && <TrendBadge trend={trend} />}
+          <span className="text-sm text-slate-400">
+            Humidity: <strong className="text-slate-200">{val(data, ENTITIES.humidity)}{unit(data, ENTITIES.humidity)}</strong>
+          </span>
           {aqiData && (() => {
             const { label, color } = aqiLabel(aqiData.aqi);
             return (
