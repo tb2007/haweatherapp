@@ -1,18 +1,23 @@
 import { useCurrentWeather, val, numVal, unit } from '../../hooks/useCurrentWeather';
 import { ENTITIES } from '../../constants/entities';
 import { WindCompass } from './WindCompass';
+import { AQIPanel } from './AQIPanel';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useForecast } from '../../hooks/useForecast';
 import { usePressureTrend, PressureTrend } from '../../hooks/usePressureTrend';
 
-function weatherCondition(solar: number | null, lux: number | null): { icon: string; label: string } {
-  if (lux == null || lux < 10)  return { icon: '🌙', label: 'Night' };
-  if (solar == null)             return { icon: '🌤️', label: 'Partly Cloudy' };
-  if (solar > 700)               return { icon: '☀️', label: 'Sunny' };
-  if (solar > 300)               return { icon: '🌤️', label: 'Mostly Sunny' };
-  if (solar > 100)               return { icon: '⛅', label: 'Partly Cloudy' };
-  if (solar > 20)                return { icon: '☁️', label: 'Cloudy' };
-  return                          { icon: '🌫️', label: 'Overcast' };
+function codeToCondition(code: number, isNight: boolean): { icon: string; label: string } {
+  if (isNight)  return { icon: '🌙', label: 'Night' };
+  if (code === 0) return { icon: '☀️', label: 'Sunny' };
+  if (code <= 2)  return { icon: '🌤️', label: 'Mostly Sunny' };
+  if (code === 3) return { icon: '☁️', label: 'Cloudy' };
+  if (code <= 48) return { icon: '🌫️', label: 'Foggy' };
+  if (code <= 55) return { icon: '🌦️', label: 'Drizzle' };
+  if (code <= 65) return { icon: '🌧️', label: 'Rain' };
+  if (code <= 77) return { icon: '🌨️', label: 'Snow' };
+  if (code <= 82) return { icon: '🌦️', label: 'Showers' };
+  if (code <= 86) return { icon: '🌨️', label: 'Snow Showers' };
+  return { icon: '⛈️', label: 'Thunderstorm' };
 }
 
 function TrendBadge({ trend }: { trend: PressureTrend }) {
@@ -36,13 +41,18 @@ export function WeatherHero() {
 
   const temp = numVal(data, ENTITIES.temperature);
   const windDeg = numVal(data, ENTITIES.windDirection);
-  const solar = numVal(data, ENTITIES.solarRadiation);
-  const lux = numVal(data, ENTITIES.solarLux);
-  const condition = weatherCondition(solar, lux);
 
   const currentHour = forecast?.hours?.[0];
   const feelsLike = currentHour ? Math.round(currentHour.feelsLike) : null;
   const sunTimes = forecast?.sunTimes ?? null;
+
+  const now = Date.now();
+  const isNight = sunTimes
+    ? now < new Date(sunTimes.sunrise).getTime() || now > new Date(sunTimes.sunset).getTime()
+    : false;
+  const condition = currentHour
+    ? codeToCondition(currentHour.weatherCode, isNight)
+    : { icon: '🌡️', label: '' };
 
   return (
     <div className="space-y-4">
@@ -77,17 +87,13 @@ export function WeatherHero() {
           {trend && <TrendBadge trend={trend} />}
         </div>
 
-        {/* Solar + sun times row */}
-        <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
-          <span>Solar: <strong className="text-slate-200">{val(data, ENTITIES.solarRadiation)} W/m²</strong></span>
-          <span>Lux: <strong className="text-slate-200">{val(data, ENTITIES.solarLux)}</strong></span>
-          {sunTimes && (
-            <>
-              <span>🌅 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
-              <span>🌇 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
-            </>
-          )}
-        </div>
+        {/* Sun times row */}
+        {sunTimes && (
+          <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
+            <span>🌅 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
+            <span>🌇 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
+          </div>
+        )}
       </div>
 
       <WindCompass
@@ -96,6 +102,8 @@ export function WeatherHero() {
         gust={val(data, ENTITIES.windGust)}
         unit={unit(data, ENTITIES.windSpeed)}
       />
+
+      <AQIPanel />
     </div>
   );
 }
