@@ -24,5 +24,5 @@ export const ENTITIES = {
 
 export const CURRENT_ENTITY_IDS = Object.values(ENTITIES).join(',');
 
-export const POLL_INTERVAL_MS = 30_000;
+export const POLL_INTERVAL_MS = 20_000;
 export const HISTORY_REFRESH_MS = 5 * 60_000;
