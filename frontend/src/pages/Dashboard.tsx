@@ -104,7 +104,7 @@ export function Dashboard() {
       </main>
 
       <footer className="border-t border-slate-700/60 py-3 text-center text-xs text-slate-500 pb-24 lg:pb-3">
-        Lakewood, CO · Personal Weather Station
+        Lakewood, CO · Green Mountain Weather
       </footer>
 
       {/* Mobile bottom nav — hidden on desktop */}
