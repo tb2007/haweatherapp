@@ -1,6 +1,7 @@
 export const ENTITIES = {
   // Atmosphere
   temperature: 'sensor.gw1100b_v2_0_4_outdoor_temperature',
+  humidity: 'sensor.gw1100b_v2_0_4_humidity',
   pressure: 'sensor.gw1100b_v2_0_4_relative_pressure',
   uvIndex: 'sensor.gw1100b_v2_0_4_uv_index',
   solarRadiation: 'sensor.gw1100b_v2_0_4_solar_radiation',
