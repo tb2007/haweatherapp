@@ -103,8 +103,8 @@ export function WeatherHero() {
         {/* Sun times row */}
         {sunTimes && (
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
-            <span>🌅 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
-            <span>🌇 <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
+            <span>☀️ Rise <strong className="text-slate-200">{fmtSunTime(sunTimes.sunrise)}</strong></span>
+            <span>🌙 Set <strong className="text-slate-200">{fmtSunTime(sunTimes.sunset)}</strong></span>
           </div>
         )}
       </div>
