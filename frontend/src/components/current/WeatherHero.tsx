@@ -1,10 +1,10 @@
 import { useCurrentWeather, val, numVal, unit } from '../../hooks/useCurrentWeather';
 import { ENTITIES } from '../../constants/entities';
 import { WindCompass } from './WindCompass';
-import { AQIPanel } from './AQIPanel';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useForecast } from '../../hooks/useForecast';
 import { usePressureTrend, PressureTrend } from '../../hooks/usePressureTrend';
+import { useAirQuality, aqiLabel } from '../../hooks/useAirQuality';
 
 function codeToCondition(code: number, isNight: boolean): { icon: string; label: string } {
   if (isNight)  return { icon: '🌙', label: 'Night' };
@@ -34,6 +34,7 @@ export function WeatherHero() {
   const { data, isLoading } = useCurrentWeather();
   const { data: forecast } = useForecast();
   const { data: trend } = usePressureTrend();
+  const { data: aqiData } = useAirQuality();
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><LoadingSpinner size="lg" /></div>;
@@ -79,12 +80,21 @@ export function WeatherHero() {
           )}
         </div>
 
-        {/* Pressure + trend badge */}
+        {/* Pressure + trend + AQI row */}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span className="text-sm text-slate-400">
             Pressure: <strong className="text-slate-200">{val(data, ENTITIES.pressure)} {unit(data, ENTITIES.pressure)}</strong>
           </span>
           {trend && <TrendBadge trend={trend} />}
+          {aqiData && (() => {
+            const { label, color } = aqiLabel(aqiData.aqi);
+            return (
+              <span className="text-sm text-slate-400">
+                AQI: <strong className={color}>{aqiData.aqi}</strong>
+                <span className="ml-1 text-xs text-slate-500">{label}</span>
+              </span>
+            );
+          })()}
         </div>
 
         {/* Sun times row */}
@@ -102,8 +112,6 @@ export function WeatherHero() {
         gust={val(data, ENTITIES.windGust)}
         unit={unit(data, ENTITIES.windSpeed)}
       />
-
-      <AQIPanel />
     </div>
   );
 }
