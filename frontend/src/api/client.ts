@@ -29,4 +29,6 @@ export const api = {
     client.get<HistoryPoint[]>(`/api/weather/history/${entityId}?hours=${hours}`),
 
   webcam: () => client.get<WebcamConfig>('/api/weather/webcam'),
+
+  forecast: () => client.get('/api/weather/forecast'),
 };
