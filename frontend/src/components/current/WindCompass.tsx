@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 
 function degToDir(deg: number) {
@@ -11,6 +13,12 @@ export function WindCompass({ degrees, speed, gust, unit }: {
   unit: string;
 }) {
   const deg = degrees ?? 0;
+  const [maxGust, setMaxGust] = useState<number>(0);
+
+  useEffect(() => {
+    const current = parseFloat(gust ?? '0');
+    if (!isNaN(current) && current > maxGust) setMaxGust(current);
+  }, [gust]);
 
   return (
     <div className="flex items-center gap-6 rounded-xl bg-slate-800 p-4 shadow">
@@ -62,8 +70,16 @@ export function WindCompass({ degrees, speed, gust, unit }: {
         </div>
         {gust && (
           <div className="rounded-lg bg-slate-700/60 px-3 py-1.5">
-            <span className="text-xs text-slate-400">Gust</span>
-            <span className="ml-2 text-sm font-bold text-yellow-400">{gust} {unit}</span>
+            <div>
+              <span className="text-xs text-slate-400">Gust</span>
+              <span className="ml-2 text-sm font-bold text-yellow-400">{gust} {unit}</span>
+            </div>
+            {maxGust > 0 && (
+              <div className="mt-0.5">
+                <span className="text-xs text-slate-500">Max </span>
+                <span className="text-xs font-bold text-orange-400">{maxGust.toFixed(1)} {unit}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
