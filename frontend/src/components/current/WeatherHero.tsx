@@ -6,17 +6,30 @@ import { useForecast } from '../../hooks/useForecast';
 import { usePressureTrend, PressureTrend } from '../../hooks/usePressureTrend';
 import { useAirQuality, aqiLabel } from '../../hooks/useAirQuality';
 
-function codeToCondition(code: number, isNight: boolean): { icon: string; label: string } {
-  if (isNight)  return { icon: '🌙', label: 'Night' };
-  if (code === 0) return { icon: '☀️', label: 'Sunny' };
-  if (code <= 2)  return { icon: '🌤️', label: 'Mostly Sunny' };
-  if (code === 3) return { icon: '☁️', label: 'Cloudy' };
-  if (code <= 48) return { icon: '🌫️', label: 'Foggy' };
-  if (code <= 55) return { icon: '🌦️', label: 'Drizzle' };
-  if (code <= 65) return { icon: '🌧️', label: 'Rain' };
-  if (code <= 77) return { icon: '🌨️', label: 'Snow' };
-  if (code <= 82) return { icon: '🌦️', label: 'Showers' };
-  if (code <= 86) return { icon: '🌨️', label: 'Snow Showers' };
+// Weather Underground icon codes 0–47
+function codeToCondition(code: number): { icon: string; label: string } {
+  if (code <= 4)   return { icon: '⛈️', label: 'Thunderstorm' };
+  if (code <= 8)   return { icon: '🌨️', label: 'Wintry Mix' };
+  if (code === 9)  return { icon: '🌦️', label: 'Drizzle' };
+  if (code <= 12)  return { icon: '🌧️', label: 'Rain' };
+  if (code <= 18)  return { icon: '🌨️', label: 'Snow' };
+  if (code <= 22)  return { icon: '🌫️', label: 'Fog' };
+  if (code <= 24)  return { icon: '💨',  label: 'Windy' };
+  if (code === 25) return { icon: '❄️',  label: 'Frigid' };
+  if (code === 26) return { icon: '☁️',  label: 'Cloudy' };
+  if (code === 27) return { icon: '☁️',  label: 'Mostly Cloudy' };
+  if (code === 28) return { icon: '⛅',  label: 'Mostly Cloudy' };
+  if (code === 29) return { icon: '🌙',  label: 'Partly Cloudy' };
+  if (code === 30) return { icon: '🌤️', label: 'Partly Cloudy' };
+  if (code === 31) return { icon: '🌙',  label: 'Clear' };
+  if (code === 32) return { icon: '☀️',  label: 'Sunny' };
+  if (code === 33) return { icon: '🌙',  label: 'Fair' };
+  if (code === 34) return { icon: '🌤️', label: 'Fair' };
+  if (code <= 36)  return { icon: '☀️',  label: code === 36 ? 'Hot' : 'Fair' };
+  if (code <= 39)  return { icon: '⛈️', label: 'Thunderstorm' };
+  if (code === 40) return { icon: '🌦️', label: 'Showers' };
+  if (code <= 43)  return { icon: '🌨️', label: 'Snow' };
+  if (code === 44) return { icon: '⛅',  label: 'Partly Cloudy' };
   return { icon: '⛈️', label: 'Thunderstorm' };
 }
 
@@ -47,12 +60,8 @@ export function WeatherHero() {
   const feelsLike = currentHour ? Math.round(currentHour.feelsLike) : null;
   const sunTimes = forecast?.sunTimes ?? null;
 
-  const now = Date.now();
-  const isNight = sunTimes
-    ? now < new Date(sunTimes.sunrise).getTime() || now > new Date(sunTimes.sunset).getTime()
-    : false;
   const condition = currentHour
-    ? codeToCondition(currentHour.weatherCode, isNight)
+    ? codeToCondition(currentHour.weatherCode)
     : { icon: '🌡️', label: '' };
 
   return (
