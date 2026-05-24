@@ -46,6 +46,7 @@ export function BaseChart({ series, unit = '', height = 260, yDomain = ['auto', 
   const leftMargin = yAxisWidth ? 0 : -16;
 
   return (
+    <div style={{ touchAction: 'pan-y' }}>
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={merged} margin={{ top: 4, right: 8, left: leftMargin, bottom: 0 }}>
         <defs>
@@ -101,5 +102,6 @@ export function BaseChart({ series, unit = '', height = 260, yDomain = ['auto', 
         ))}
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 }

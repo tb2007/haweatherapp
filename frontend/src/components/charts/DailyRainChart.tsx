@@ -45,6 +45,7 @@ export function DailyRainChart() {
       {isLoading ? (
         <div className="flex h-40 items-center justify-center"><LoadingSpinner /></div>
       ) : (
+        <div style={{ touchAction: 'pan-y' }}>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
@@ -69,6 +70,7 @@ export function DailyRainChart() {
             <Bar dataKey="rain" fill="#38bdf8" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
