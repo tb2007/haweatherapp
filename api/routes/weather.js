@@ -63,64 +63,13 @@ router.get('/history/:entityId', async (req, res) => {
   }
 });
 
-// Forecast proxy — WU API key never leaves the server
-// GET /api/weather/forecast
-router.get('/forecast', async (req, res) => {
+// WU API key relay — key never appears in frontend source code
+// but the browser makes the actual WU call, bypassing Docker's proxy
+// GET /api/weather/wu-key
+router.get('/wu-key', (req, res) => {
   const key = process.env.WU_API_KEY;
   if (!key) return res.status(503).json({ error: 'WU_API_KEY not configured' });
-
-  const geo = '39.690,-105.124';
-  const params = `geocode=${geo}&format=json&units=e&language=en-US&apiKey=${key}`;
-  const base = 'https://api.weather.com/v3/wx/forecast';
-
-  try {
-    const [hourlyRes, dailyRes] = await Promise.all([
-      axios.get(`${base}/hourly/1day?${params}`),
-      axios.get(`${base}/daily/5day?${params}`),
-    ]);
-
-    const h = hourlyRes.data;
-    const now = Date.now();
-
-    const hours = (h.validTimeLocal ?? [])
-      .map((t, i) => ({
-        time: t,
-        temp: h.temperature?.[i] ?? 0,
-        feelsLike: h.temperatureFeelsLike?.[i] ?? h.temperature?.[i] ?? 0,
-        weatherCode: h.iconCode?.[i] ?? 32,
-        windSpeed: h.windSpeed?.[i] ?? 0,
-        precipProb: h.precipChance?.[i] ?? 0,
-      }))
-      .filter((hr) => new Date(hr.time).getTime() >= now);
-
-    const d = dailyRes.data;
-    // v3 daily: daypart has 2*N entries — even indices = daytime, odd = nighttime
-    const dp = d.daypart?.[0] ?? {};
-
-    const days = (d.validTimeLocal ?? []).map((t, i) => ({
-      date: t.split('T')[0],
-      high: d.calendarDayTemperatureMax?.[i] ?? 0,
-      low: d.calendarDayTemperatureMin?.[i] ?? 0,
-      weatherCode: dp.iconCode?.[i * 2] ?? dp.iconCode?.[i * 2 + 1] ?? 32,
-      precipProb: dp.precipChance?.[i * 2] ?? dp.precipChance?.[i * 2 + 1] ?? 0,
-      maxWind: dp.windSpeed?.[i * 2] ?? dp.windSpeed?.[i * 2 + 1] ?? 0,
-    }));
-
-    // Sunrise/sunset from v3 daily response
-    let sunTimes = null;
-    if (d.sunriseTimeLocal?.[0] && d.sunsetTimeLocal?.[0]) {
-      sunTimes = {
-        sunrise: new Date(d.sunriseTimeLocal[0]).toISOString(),
-        sunset: new Date(d.sunsetTimeLocal[0]).toISOString(),
-      };
-    }
-
-    res.json({ hours, days, sunTimes });
-  } catch (err) {
-    const status = err.response?.status ?? 502;
-    console.error('[WU forecast]', status, err.response?.data ?? err.message);
-    res.status(status).json({ error: 'Failed to fetch forecast', detail: err.response?.data ?? err.message });
-  }
+  res.json({ apiKey: key });
 });
 
 // Webcam config — returns proxied HLS path; RTSP URL never leaves the server

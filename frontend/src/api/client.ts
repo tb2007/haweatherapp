@@ -30,5 +30,5 @@ export const api = {
 
   webcam: () => client.get<WebcamConfig>('/api/weather/webcam'),
 
-  forecast: () => client.get('/api/weather/forecast'),
+  wuKey: () => client.get<{ apiKey: string }>('/api/weather/wu-key'),
 };
