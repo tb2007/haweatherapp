@@ -13,10 +13,7 @@ services:
       RTSP_URL: ${RTSP_URL:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       WU_API_KEY: ${WU_API_KEY:-}
-    networks:
-      - internal
-    expose:
-      - "3001"
+    network_mode: host
 
   frontend:
     build: ./frontend
@@ -25,6 +22,8 @@ services:
       - "3000:80"
     networks:
       - internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - api
       - go2rtc
