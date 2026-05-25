@@ -4,58 +4,34 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 type ForecastView = '24h' | '7d';
 
-// Weather Underground icon codes 0–47
-function wuIcon(code: number): string {
-  if (code <= 4)  return '⛈️';  // tornado, tropical storm, thunderstorm
-  if (code <= 8)  return '🌨️';  // wintry mix, freezing precip
-  if (code === 9) return '🌦️';  // drizzle
-  if (code <= 12) return '🌧️';  // rain
-  if (code <= 18) return '🌨️';  // snow, sleet, hail
-  if (code <= 22) return '🌫️';  // fog, haze, smoke
-  if (code <= 24) return '💨';   // breezy, windy
-  if (code === 25) return '❄️';  // frigid
-  if (code === 26) return '☁️';  // cloudy
-  if (code === 27) return '☁️';  // mostly cloudy (night)
-  if (code === 28) return '⛅';  // mostly cloudy (day)
-  if (code === 29) return '🌙';  // partly cloudy (night)
-  if (code === 30) return '🌤️'; // partly cloudy (day)
-  if (code === 31) return '🌙';  // clear (night)
-  if (code === 32) return '☀️';  // sunny
-  if (code === 33) return '🌙';  // fair (night)
-  if (code === 34) return '🌤️'; // fair (day)
-  if (code === 35) return '🌧️'; // rain/hail
-  if (code === 36) return '☀️';  // hot
-  if (code <= 39) return '⛈️';  // thunderstorm
-  if (code === 40) return '🌦️'; // scattered showers
-  if (code <= 43) return '🌨️';  // snow
-  if (code === 44) return '⛅';  // partly cloudy
-  if (code <= 47) return '⛈️';  // thundershower
-  return '🌡️';
+// WMO weather codes
+function wuIcon(code: number, hour = 12): string {
+  const isNight = hour < 6 || hour >= 20;
+  if (code === 0)  return isNight ? '🌙' : '☀️';
+  if (code === 1)  return isNight ? '🌙' : '🌤️';
+  if (code === 2)  return '⛅';
+  if (code === 3)  return '☁️';
+  if (code <= 48)  return '🌫️';
+  if (code <= 55)  return '🌦️';
+  if (code <= 65)  return '🌧️';
+  if (code <= 77)  return '🌨️';
+  if (code <= 82)  return '🌧️';
+  if (code <= 86)  return '🌨️';
+  return '⛈️';
 }
 
 function wuLabel(code: number): string {
-  if (code <= 2)  return 'Severe Storm';
-  if (code <= 4)  return 'Thunderstorm';
-  if (code <= 8)  return 'Wintry Mix';
-  if (code === 9) return 'Drizzle';
-  if (code <= 12) return 'Rain';
-  if (code <= 18) return 'Snow';
-  if (code <= 22) return 'Fog';
-  if (code <= 24) return 'Windy';
-  if (code === 25) return 'Frigid';
-  if (code === 26) return 'Cloudy';
-  if (code <= 28) return 'Mostly Cloudy';
-  if (code <= 30) return 'Partly Cloudy';
-  if (code === 31) return 'Clear';
-  if (code === 32) return 'Sunny';
-  if (code <= 34) return 'Fair';
-  if (code === 36) return 'Hot';
-  if (code <= 39) return 'Thunderstorm';
-  if (code === 40) return 'Showers';
-  if (code <= 43) return 'Snow';
-  if (code === 44) return 'Partly Cloudy';
-  if (code <= 47) return 'Thunderstorm';
-  return 'Unknown';
+  if (code === 0)  return 'Clear';
+  if (code === 1)  return 'Mostly Clear';
+  if (code === 2)  return 'Partly Cloudy';
+  if (code === 3)  return 'Overcast';
+  if (code <= 48)  return 'Fog';
+  if (code <= 55)  return 'Drizzle';
+  if (code <= 65)  return 'Rain';
+  if (code <= 77)  return 'Snow';
+  if (code <= 82)  return 'Showers';
+  if (code <= 86)  return 'Snow Showers';
+  return 'Thunderstorm';
 }
 
 function fmtHour(timeStr: string): string {
@@ -104,6 +80,7 @@ export function HourlyForecast() {
         <div className="flex gap-2 pb-1" style={{ minWidth: 'max-content' }}>
 
           {view === '24h' && data.hours.map((hour) => {
+            const h = new Date(hour.time).getHours();
             const showPrecip = hour.precipProb > 0;
             return (
               <div
@@ -111,7 +88,7 @@ export function HourlyForecast() {
                 className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-700/60 px-3 py-3 text-center"
               >
                 <span className="text-xs font-medium text-slate-400">{fmtHour(hour.time)}</span>
-                <span className="text-2xl leading-none">{wuIcon(hour.weatherCode)}</span>
+                <span className="text-2xl leading-none">{wuIcon(hour.weatherCode, h)}</span>
                 <span className="text-[10px] leading-tight text-slate-400">{wuLabel(hour.weatherCode)}</span>
                 <span className="text-sm font-bold text-sky-300">{Math.round(hour.temp)}°</span>
                 <span className="text-xs text-slate-500">{Math.round(hour.windSpeed)} mph</span>
