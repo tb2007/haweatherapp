@@ -69,53 +69,57 @@ router.get('/forecast', async (req, res) => {
   const key = process.env.WU_API_KEY;
   if (!key) return res.status(503).json({ error: 'WU_API_KEY not configured' });
 
-  const base = 'https://api.weather.com/v1/geocode/39.690/-105.124/forecast';
-  const params = `apiKey=${key}&units=e&language=en-US`;
+  const geo = '39.690,-105.124';
+  const params = `geocode=${geo}&format=json&units=e&language=en-US&apiKey=${key}`;
+  const base = 'https://api.weather.com/v3/wx/forecast';
 
   try {
     const [hourlyRes, dailyRes] = await Promise.all([
-      axios.get(`${base}/hourly/360hour.json?${params}`),
-      axios.get(`${base}/daily/7day.json?${params}`),
+      axios.get(`${base}/hourly/1day?${params}`),
+      axios.get(`${base}/daily/5day?${params}`),
     ]);
 
+    const h = hourlyRes.data;
     const now = Date.now();
 
-    const hours = (hourlyRes.data.forecasts ?? [])
-      .filter((f) => f.fcst_valid * 1000 >= now)
-      .slice(0, 24)
-      .map((f) => ({
-        time: new Date(f.fcst_valid * 1000).toISOString(),
-        temp: f.temp ?? 0,
-        feelsLike: f.feels_like ?? f.temp ?? 0,
-        weatherCode: f.icon_code ?? 32,
-        windSpeed: f.wspd ?? 0,
-        precipProb: f.pop ?? 0,
-      }));
+    const hours = (h.validTimeLocal ?? [])
+      .map((t, i) => ({
+        time: t,
+        temp: h.temperature?.[i] ?? 0,
+        feelsLike: h.temperatureFeelsLike?.[i] ?? h.temperature?.[i] ?? 0,
+        weatherCode: h.iconCode?.[i] ?? 32,
+        windSpeed: h.windSpeed?.[i] ?? 0,
+        precipProb: h.precipChance?.[i] ?? 0,
+      }))
+      .filter((hr) => new Date(hr.time).getTime() >= now);
 
-    const days = (dailyRes.data.forecasts ?? []).slice(0, 7).map((f) => ({
-      date: new Date(f.fcst_valid * 1000).toISOString().split('T')[0],
-      high: f.high?.temp ?? f.temp ?? 0,
-      low: f.low?.temp ?? f.temp ?? 0,
-      weatherCode: f.day?.icon_code ?? f.night?.icon_code ?? 32,
-      precipProb: f.day?.pop ?? f.night?.pop ?? 0,
-      maxWind: f.day?.wspd ?? f.night?.wspd ?? 0,
+    const d = dailyRes.data;
+    // v3 daily: daypart has 2*N entries — even indices = daytime, odd = nighttime
+    const dp = d.daypart?.[0] ?? {};
+
+    const days = (d.validTimeLocal ?? []).map((t, i) => ({
+      date: t.split('T')[0],
+      high: d.calendarDayTemperatureMax?.[i] ?? 0,
+      low: d.calendarDayTemperatureMin?.[i] ?? 0,
+      weatherCode: dp.iconCode?.[i * 2] ?? dp.iconCode?.[i * 2 + 1] ?? 32,
+      precipProb: dp.precipChance?.[i * 2] ?? dp.precipChance?.[i * 2 + 1] ?? 0,
+      maxWind: dp.windSpeed?.[i * 2] ?? dp.windSpeed?.[i * 2 + 1] ?? 0,
     }));
 
-    // Parse sunrise/sunset from WU daily (format: "6:42 AM" local time)
+    // Sunrise/sunset from v3 daily response
     let sunTimes = null;
-    const today = dailyRes.data.forecasts?.[0];
-    if (today?.sunrise && today?.sunset) {
-      const dateStr = new Date(today.fcst_valid * 1000).toDateString();
+    if (d.sunriseTimeLocal?.[0] && d.sunsetTimeLocal?.[0]) {
       sunTimes = {
-        sunrise: new Date(`${dateStr} ${today.sunrise}`).toISOString(),
-        sunset: new Date(`${dateStr} ${today.sunset}`).toISOString(),
+        sunrise: new Date(d.sunriseTimeLocal[0]).toISOString(),
+        sunset: new Date(d.sunsetTimeLocal[0]).toISOString(),
       };
     }
 
     res.json({ hours, days, sunTimes });
   } catch (err) {
     const status = err.response?.status ?? 502;
-    res.status(status).json({ error: 'Failed to fetch forecast from Weather Underground' });
+    console.error('[WU forecast]', status, err.response?.data ?? err.message);
+    res.status(status).json({ error: 'Failed to fetch forecast', detail: err.response?.data ?? err.message });
   }
 });
 
