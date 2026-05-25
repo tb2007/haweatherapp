@@ -63,14 +63,6 @@ router.get('/history/:entityId', async (req, res) => {
   }
 });
 
-// WU API key relay — key never appears in frontend source code
-// but the browser makes the actual WU call, bypassing Docker's proxy
-// GET /api/weather/wu-key
-router.get('/wu-key', (req, res) => {
-  const key = process.env.WU_API_KEY;
-  if (!key) return res.status(503).json({ error: 'WU_API_KEY not configured' });
-  res.json({ apiKey: key });
-});
 
 // Webcam config — returns proxied HLS path; RTSP URL never leaves the server
 router.get('/webcam', (req, res) => {
