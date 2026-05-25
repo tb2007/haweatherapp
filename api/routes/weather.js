@@ -115,7 +115,8 @@ router.get('/forecast', async (req, res) => {
     res.json({ hours, days, sunTimes });
   } catch (err) {
     const status = err.response?.status ?? 502;
-    res.status(status).json({ error: 'Failed to fetch forecast from Weather Underground' });
+    console.error('[WU forecast]', status, err.response?.data ?? err.message);
+    res.status(status).json({ error: 'Failed to fetch forecast from Weather Underground', detail: err.response?.data ?? err.message });
   }
 });
 
