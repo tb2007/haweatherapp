@@ -64,61 +64,58 @@ router.get('/history/:entityId', async (req, res) => {
 });
 
 
-// WU v3 daily 5-day forecast proxy — key stays server-side, no CORS issues
+// WU v3 forecast proxy — key stays server-side, no CORS issues
 // GET /api/weather/forecast
 router.get('/forecast', async (req, res) => {
   try {
     const key = process.env.WU_API_KEY;
     if (!key) return res.status(503).json({ error: 'WU_API_KEY not configured' });
 
-    const { data } = await axios.get(
-      'https://api.weather.com/v3/wx/forecast/daily/5day',
-      {
-        params: {
-          geocode: '39.706522,-105.154665',
-          format: 'json',
-          units: 'e',
-          language: 'en-US',
-          apiKey: key,
-        },
-        timeout: 10000,
-      }
-    );
+    const params = {
+      geocode: '39.706522,-105.154665',
+      format: 'json',
+      units: 'e',
+      language: 'en-US',
+      apiKey: key,
+    };
 
-    const dp = data.daypart?.[0] ?? {};
+    // Fetch hourly and daily in parallel
+    const [hourlyRes, dailyRes] = await Promise.all([
+      axios.get('https://api.weather.com/v3/wx/forecast/hourly/10day', { params, timeout: 10000 }),
+      axios.get('https://api.weather.com/v3/wx/forecast/daily/5day',   { params, timeout: 10000 }),
+    ]);
+
+    const h = hourlyRes.data;
+    const d = dailyRes.data;
+    const dp = d.daypart?.[0] ?? {};
+
+    // Next 24 hours of true hourly data
+    const now = Date.now();
+    const hours = (h.validTimeLocal ?? [])
+      .map((iso, i) => ({
+        time: iso,
+        temp: h.temperature?.[i] ?? null,
+        feelsLike: h.temperatureFeelsLike?.[i] ?? h.temperature?.[i] ?? null,
+        weatherCode: h.iconCode?.[i] ?? 44,
+        windSpeed: h.windSpeed?.[i] ?? 0,
+        precipProb: h.precipChance?.[i] ?? 0,
+      }))
+      .filter((entry) => entry.temp != null && new Date(entry.time).getTime() >= now)
+      .slice(0, 24);
 
     // 5 daily summary cards
-    const days = (data.validTimeLocal ?? []).map((iso, i) => ({
+    const days = (d.validTimeLocal ?? []).map((iso, i) => ({
       date: iso.slice(0, 10),
-      high: data.calendarDayTemperatureMax?.[i] ?? data.temperatureMax?.[i] ?? null,
-      low: data.calendarDayTemperatureMin?.[i] ?? data.temperatureMin?.[i] ?? null,
+      high: d.calendarDayTemperatureMax?.[i] ?? d.temperatureMax?.[i] ?? null,
+      low: d.calendarDayTemperatureMin?.[i] ?? d.temperatureMin?.[i] ?? null,
       // prefer daytime icon (i*2), fall back to night (i*2+1)
       weatherCode: dp.iconCode?.[i * 2] ?? dp.iconCode?.[i * 2 + 1] ?? 44,
       precipProb: Math.max(dp.precipChance?.[i * 2] ?? 0, dp.precipChance?.[i * 2 + 1] ?? 0),
       maxWind: Math.max(dp.windSpeed?.[i * 2] ?? 0, dp.windSpeed?.[i * 2 + 1] ?? 0),
     }));
 
-    // Daytime-only periods — one card per day showing the high temp
-    const hours = [];
-    const dpLen = (dp.temperature ?? []).length;
-    for (let i = 0; i < dpLen; i++) {
-      if (dp.dayOrNight?.[i] !== 'D') continue; // skip night periods
-      const temp = dp.temperature?.[i];
-      if (temp == null) continue; // past period
-      const dayIdx = Math.floor(i / 2);
-      const baseDate = (data.validTimeLocal?.[dayIdx] ?? '').slice(0, 10);
-      hours.push({
-        time: baseDate, // date only — rendered as day name in UI
-        temp,
-        feelsLike: dp.temperatureHeatIndex?.[i] ?? temp,
-        weatherCode: dp.iconCode?.[i] ?? 44,
-        windSpeed: dp.windSpeed?.[i] ?? 0,
-        precipProb: dp.precipChance?.[i] ?? 0,
-      });
-    }
-
-    const sunTimes = data.sunriseTimeLocal?.[0]
-      ? { sunrise: data.sunriseTimeLocal[0], sunset: data.sunsetTimeLocal[0] }
+    const sunTimes = d.sunriseTimeLocal?.[0]
+      ? { sunrise: d.sunriseTimeLocal[0], sunset: d.sunsetTimeLocal[0] }
       : null;
 
     res.json({ hours, days, sunTimes });
