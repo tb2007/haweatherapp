@@ -79,36 +79,59 @@ router.get('/forecast', async (req, res) => {
       apiKey: key,
     };
 
-    // Fetch hourly and daily in parallel
-    const [hourlyRes, dailyRes] = await Promise.all([
-      axios.get('https://api.weather.com/v3/wx/forecast/hourly/10day', { params, timeout: 10000 }),
-      axios.get('https://api.weather.com/v3/wx/forecast/daily/5day',   { params, timeout: 10000 }),
+    // Always fetch daily (sun times + 5-day cards). Try hourly in parallel;
+    // PWS keys may not have access — fall back gracefully if it fails.
+    const [hourlyResult, dailyRes] = await Promise.all([
+      axios.get('https://api.weather.com/v3/wx/forecast/hourly/10day', { params, timeout: 10000 })
+        .catch((err) => { console.warn('WU hourly unavailable:', err.message); return null; }),
+      axios.get('https://api.weather.com/v3/wx/forecast/daily/5day', { params, timeout: 10000 }),
     ]);
 
-    const h = hourlyRes.data;
     const d = dailyRes.data;
     const dp = d.daypart?.[0] ?? {};
 
-    // Next 24 hours of true hourly data
+    // Hours: true hourly if available, otherwise daytime-only periods from daily
     const now = Date.now();
-    const hours = (h.validTimeLocal ?? [])
-      .map((iso, i) => ({
-        time: iso,
-        temp: h.temperature?.[i] ?? null,
-        feelsLike: h.temperatureFeelsLike?.[i] ?? h.temperature?.[i] ?? null,
-        weatherCode: h.iconCode?.[i] ?? 44,
-        windSpeed: h.windSpeed?.[i] ?? 0,
-        precipProb: h.precipChance?.[i] ?? 0,
-      }))
-      .filter((entry) => entry.temp != null && new Date(entry.time).getTime() >= now)
-      .slice(0, 24);
+    let hours;
+    if (hourlyResult) {
+      const h = hourlyResult.data;
+      hours = (h.validTimeLocal ?? [])
+        .map((iso, i) => ({
+          time: iso,
+          temp: h.temperature?.[i] ?? null,
+          feelsLike: h.temperatureFeelsLike?.[i] ?? h.temperature?.[i] ?? null,
+          weatherCode: h.iconCode?.[i] ?? 44,
+          windSpeed: h.windSpeed?.[i] ?? 0,
+          precipProb: h.precipChance?.[i] ?? 0,
+        }))
+        .filter((entry) => entry.temp != null && new Date(entry.time).getTime() >= now)
+        .slice(0, 24);
+    } else {
+      // Fallback: daytime periods from daily — one card per day, highs only
+      hours = [];
+      const dpLen = (dp.temperature ?? []).length;
+      for (let i = 0; i < dpLen; i++) {
+        if (dp.dayOrNight?.[i] !== 'D') continue;
+        const temp = dp.temperature?.[i];
+        if (temp == null) continue;
+        const dayIdx = Math.floor(i / 2);
+        const baseDate = (d.validTimeLocal?.[dayIdx] ?? '').slice(0, 10);
+        hours.push({
+          time: baseDate,
+          temp,
+          feelsLike: dp.temperatureHeatIndex?.[i] ?? temp,
+          weatherCode: dp.iconCode?.[i] ?? 44,
+          windSpeed: dp.windSpeed?.[i] ?? 0,
+          precipProb: dp.precipChance?.[i] ?? 0,
+        });
+      }
+    }
 
     // 5 daily summary cards
     const days = (d.validTimeLocal ?? []).map((iso, i) => ({
       date: iso.slice(0, 10),
       high: d.calendarDayTemperatureMax?.[i] ?? d.temperatureMax?.[i] ?? null,
       low: d.calendarDayTemperatureMin?.[i] ?? d.temperatureMin?.[i] ?? null,
-      // prefer daytime icon (i*2), fall back to night (i*2+1)
       weatherCode: dp.iconCode?.[i * 2] ?? dp.iconCode?.[i * 2 + 1] ?? 44,
       precipProb: Math.max(dp.precipChance?.[i * 2] ?? 0, dp.precipChance?.[i * 2 + 1] ?? 0),
       maxWind: Math.max(dp.windSpeed?.[i * 2] ?? 0, dp.windSpeed?.[i * 2 + 1] ?? 0),
