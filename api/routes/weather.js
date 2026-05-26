@@ -98,19 +98,19 @@ router.get('/forecast', async (req, res) => {
       maxWind: Math.max(dp.windSpeed?.[i * 2] ?? 0, dp.windSpeed?.[i * 2 + 1] ?? 0),
     }));
 
-    // daypart entries (day + night per day, nulls skipped = past periods)
+    // Daytime-only periods — one card per day showing the high temp
     const hours = [];
     const dpLen = (dp.temperature ?? []).length;
     for (let i = 0; i < dpLen; i++) {
+      if (dp.dayOrNight?.[i] !== 'D') continue; // skip night periods
       const temp = dp.temperature?.[i];
-      if (temp == null) continue; // past daytime slot
-      const isNight = dp.dayOrNight?.[i] === 'N';
+      if (temp == null) continue; // past period
       const dayIdx = Math.floor(i / 2);
       const baseDate = (data.validTimeLocal?.[dayIdx] ?? '').slice(0, 10);
       hours.push({
-        time: `${baseDate}T${isNight ? '20' : '09'}:00`,
+        time: baseDate, // date only — rendered as day name in UI
         temp,
-        feelsLike: (isNight ? dp.temperatureWindChill?.[i] : dp.temperatureHeatIndex?.[i]) ?? temp,
+        feelsLike: dp.temperatureHeatIndex?.[i] ?? temp,
         weatherCode: dp.iconCode?.[i] ?? 44,
         windSpeed: dp.windSpeed?.[i] ?? 0,
         precipProb: dp.precipChance?.[i] ?? 0,

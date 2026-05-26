@@ -95,7 +95,7 @@ export function HourlyForecast() {
       <div className="mb-3 flex items-center justify-between">
         <span className="text-xs font-medium text-slate-500">Lakewood, CO · Weather Underground</span>
         <div className="flex gap-1">
-          {([['daypart', 'Day/Night'], ['7d', '5 Day']] as [ForecastView, string][]).map(([v, label]) => (
+          {([['daypart', 'Forecast'], ['7d', '5 Day']] as [ForecastView, string][]).map(([v, label]) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -113,15 +113,14 @@ export function HourlyForecast() {
         <div className="flex gap-2 pb-1" style={{ minWidth: 'max-content' }}>
 
           {view === 'daypart' && data.hours.map((hour) => {
-            const h = new Date(hour.time).getHours();
             const showPrecip = hour.precipProb > 0;
             return (
               <div
                 key={hour.time}
                 className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-700/60 px-3 py-3 text-center"
               >
-                <span className="text-xs font-medium text-slate-400">{fmtHour(hour.time)}</span>
-                <span className="text-2xl leading-none">{wuIcon(hour.weatherCode, h)}</span>
+                <span className="text-xs font-medium text-slate-400">{fmtDay(hour.time)}</span>
+                <span className="text-2xl leading-none">{wuIcon(hour.weatherCode)}</span>
                 <span className="text-[10px] leading-tight text-slate-400">{wuLabel(hour.weatherCode)}</span>
                 <span className="text-sm font-bold text-sky-300">{Math.round(hour.temp)}°</span>
                 <span className="text-xs text-slate-500">{Math.round(hour.windSpeed)} mph</span>
