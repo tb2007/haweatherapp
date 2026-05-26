@@ -58,7 +58,7 @@ export function WeatherHero() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-gradient-to-br from-sky-900/60 to-slate-800 p-6 shadow-lg">
+      <div className="rounded-xl bg-gradient-to-br from-teal-900/60 to-slate-800 p-6 shadow-lg">
         {/* Condition row */}
         <div className="mb-4 flex items-center gap-2">
           <span className="text-4xl">{condition.icon}</span>
@@ -67,7 +67,7 @@ export function WeatherHero() {
 
         {/* Temperature — large and dominant */}
         <div className="flex items-end gap-4">
-          <div className="text-7xl font-extrabold leading-none text-sky-300">
+          <div className="text-7xl font-extrabold leading-none text-teal-300">
             {temp != null ? temp.toFixed(1) : '—'}
             <span className="ml-1 text-3xl font-normal text-slate-400">
               {unit(data, ENTITIES.temperature)}

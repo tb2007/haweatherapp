@@ -15,10 +15,9 @@ import { TimeRangePicker } from '../components/ui/TimeRangePicker';
 
 type Tab = 'current' | 'history';
 
-function SectionTitle({ color, children }: { color: string; children: React.ReactNode }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-300">
-      <span className={`inline-block h-4 w-1 rounded ${color}`} />
+    <h2 className="mb-3 text-sm font-semibold tracking-wide text-slate-400">
       {children}
     </h2>
   );
@@ -43,7 +42,7 @@ export function Dashboard() {
               onClick={() => setTab(t)}
               className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
                 tab === t
-                  ? 'bg-sky-600 text-white'
+                  ? 'bg-teal-600 text-white'
                   : 'text-slate-400 hover:bg-slate-700/60 hover:text-slate-200'
               }`}
             >
@@ -63,17 +62,17 @@ export function Dashboard() {
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
-                  <SectionTitle color="bg-sky-500">Current Conditions</SectionTitle>
+                  <SectionTitle>Current Conditions</SectionTitle>
                   <WeatherHero />
                 </div>
                 <div>
-                  <SectionTitle color="bg-violet-500">Hourly Forecast</SectionTitle>
+                  <SectionTitle>Hourly Forecast</SectionTitle>
                   <HourlyForecast />
                 </div>
               </div>
 
               <div>
-                <SectionTitle color="bg-blue-500">Rainfall</SectionTitle>
+                <SectionTitle>Rainfall</SectionTitle>
                 <RainPanel />
               </div>
 
@@ -84,7 +83,7 @@ export function Dashboard() {
           {tab === 'history' && (
             <section>
               <div className="mb-4 flex items-center justify-between">
-                <SectionTitle color="bg-emerald-500">Historical Data</SectionTitle>
+                <SectionTitle>Historical Data</SectionTitle>
                 <TimeRangePicker hours={hours} onChange={setHours} />
               </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -114,7 +113,7 @@ export function Dashboard() {
             key={t}
             onClick={() => setTab(t)}
             className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs font-medium capitalize transition-colors ${
-              tab === t ? 'text-sky-400' : 'text-slate-500 hover:text-slate-300'
+              tab === t ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             <span className="text-xl">{t === 'current' ? '🌡️' : '📊'}</span>

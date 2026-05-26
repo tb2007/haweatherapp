@@ -17,7 +17,7 @@ export function RainPanel() {
     <section>
       <div className="grid grid-cols-2 gap-3">
         {/* Rain Event + Rate combined */}
-        <div className="flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow border-l-4 border-blue-400">
+        <div className="flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow">
           <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-400">Rain Event</span>
           <div className="space-y-1">
             <div>
@@ -33,7 +33,7 @@ export function RainPanel() {
         </div>
 
         {/* Weekly + Yearly combined */}
-        <div className="flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow border-l-4 border-blue-400">
+        <div className="flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow">
           <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-400">Weekly / Yearly</span>
           <div className="space-y-1">
             <div>

@@ -24,7 +24,7 @@ function Inner({ hours }: { hours: number }) {
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
-        {minTemp != null && <StatBadge label="Low" value={`${Math.round(minTemp)}°`} color="text-sky-400" />}
+        {minTemp != null && <StatBadge label="Low" value={`${Math.round(minTemp)}°`} color="text-teal-400" />}
         {maxTemp != null && <StatBadge label="High" value={`${Math.round(maxTemp)}°`} color="text-orange-400" />}
       </div>
       <BaseChart

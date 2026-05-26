@@ -49,10 +49,10 @@ export function WindCompass({ degrees, speed, gust, unit }: {
           })}
           {/* Arrow */}
           <g transform={`rotate(${deg}, 50, 50)`}>
-            <polygon points="50,8 54,50 50,42 46,50" fill="#38bdf8" />
+            <polygon points="50,8 54,50 50,42 46,50" fill="#2dd4bf" />
             <polygon points="50,92 54,50 50,58 46,50" fill="#475569" />
           </g>
-          <circle cx="50" cy="50" r="4" fill="#38bdf8" />
+          <circle cx="50" cy="50" r="4" fill="#2dd4bf" />
         </svg>
       </div>
 
@@ -60,7 +60,7 @@ export function WindCompass({ degrees, speed, gust, unit }: {
       <div className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-widest text-slate-400">Wind</span>
         <div>
-          <div className="text-3xl font-extrabold text-sky-400">
+          <div className="text-3xl font-extrabold text-teal-400">
             {speed ?? '—'}
             <span className="ml-1 text-base font-normal text-slate-400">{unit}</span>
           </div>

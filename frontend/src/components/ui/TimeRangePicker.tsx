@@ -20,7 +20,7 @@ export function TimeRangePicker({
           onClick={() => onChange(o.hours)}
           className={`min-w-[44px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             hours === o.hours
-              ? 'bg-sky-500 text-white'
+              ? 'bg-teal-600 text-white'
               : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
           }`}
         >

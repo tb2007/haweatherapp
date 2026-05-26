@@ -5,7 +5,7 @@ const severityStyle: Record<string, string> = {
   Extreme: 'bg-red-900/80 border-red-500 text-red-200',
   Severe:  'bg-orange-900/80 border-orange-500 text-orange-200',
   Moderate:'bg-yellow-900/80 border-yellow-500 text-yellow-200',
-  Minor:   'bg-sky-900/80 border-sky-500 text-sky-200',
+  Minor:   'bg-teal-900/80 border-teal-500 text-teal-200',
   Unknown: 'bg-slate-800 border-slate-600 text-slate-300',
 };
 

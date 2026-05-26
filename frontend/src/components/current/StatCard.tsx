@@ -6,13 +6,12 @@ interface Props {
   unit?: string;
   icon?: ReactNode;
   accent?: string;
-  borderAccent?: string;
   sub?: string;
 }
 
-export function StatCard({ label, value, unit, icon, accent = 'text-sky-400', borderAccent = 'border-sky-400', sub }: Props) {
+export function StatCard({ label, value, unit, icon, accent = 'text-teal-400', sub }: Props) {
   return (
-    <div className={`flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow border-l-4 ${borderAccent}`}>
+    <div className="flex flex-col justify-between rounded-xl bg-slate-800 p-4 shadow">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-widest text-slate-400">{label}</span>
         {icon && <span className="text-slate-400">{icon}</span>}

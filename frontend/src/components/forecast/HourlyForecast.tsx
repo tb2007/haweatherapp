@@ -67,7 +67,7 @@ export function HourlyForecast() {
               key={v}
               onClick={() => setView(v)}
               className={`rounded px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                view === v ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700/60 hover:text-slate-200'
+                view === v ? 'bg-teal-600 text-white' : 'text-slate-400 hover:bg-slate-700/60 hover:text-slate-200'
               }`}
             >
               {v}
@@ -90,7 +90,7 @@ export function HourlyForecast() {
                 <span className="text-xs font-medium text-slate-400">{fmtHour(hour.time)}</span>
                 <span className="text-2xl leading-none">{wuIcon(hour.weatherCode, h)}</span>
                 <span className="text-[10px] leading-tight text-slate-400">{wuLabel(hour.weatherCode)}</span>
-                <span className="text-sm font-bold text-sky-300">{Math.round(hour.temp)}°</span>
+                <span className="text-sm font-bold text-teal-300">{Math.round(hour.temp)}°</span>
                 <span className="text-xs text-slate-500">{Math.round(hour.windSpeed)} mph</span>
                 {showPrecip
                   ? <span className="text-[10px] font-medium text-blue-400">💧 {hour.precipProb}%</span>
@@ -109,7 +109,7 @@ export function HourlyForecast() {
               <span className="text-2xl leading-none">{wuIcon(day.weatherCode)}</span>
               <span className="text-[10px] leading-tight text-slate-400">{wuLabel(day.weatherCode)}</span>
               <div className="flex gap-1 text-sm font-bold">
-                <span className="text-sky-300">{day.high ?? '—'}°</span>
+                <span className="text-teal-300">{day.high ?? '—'}°</span>
                 <span className="text-slate-500">{day.low ?? '—'}°</span>
               </div>
               <span className="text-xs text-slate-500">{day.maxWind} mph</span>
