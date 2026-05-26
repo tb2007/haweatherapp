@@ -120,8 +120,8 @@ Removed from tracking: CO₂, PM2.5, PM10 (using Open-Meteo AQI instead), soil m
 | API | Usage | Refresh |
 |---|---|---|
 | Open-Meteo forecast | Hourly temp, apparent temp, weather code, wind + daily sunrise/sunset | 30 min |
-| Open-Meteo air quality | US AQI, PM2.5 for Lakewood, CO (39.690, -105.124) | 30 min |
-| weather.gov NWS | Active alerts for point 39.690,-105.124 (Jefferson County) | 10 min |
+| Open-Meteo air quality | US AQI, PM2.5 for Lakewood, CO (39.706522, -105.154665) | 30 min |
+| weather.gov NWS | Active alerts for point 39.706522,-105.154665 (Jefferson County) | 10 min |
 
 ## Environment Variables
 

@@ -32,7 +32,7 @@ export interface ForecastResult {
 async function fetchForecast(): Promise<ForecastResult> {
   const url =
     'https://api.open-meteo.com/v1/forecast' +
-    '?latitude=39.690&longitude=-105.124' +
+    '?latitude=39.706522&longitude=-105.154665' +
     '&hourly=temperature_2m,weather_code,windspeed_10m,apparent_temperature,precipitation_probability' +
     '&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,windspeed_10m_max,sunrise,sunset' +
     '&temperature_unit=fahrenheit&wind_speed_unit=mph' +

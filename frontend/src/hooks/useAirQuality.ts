@@ -17,7 +17,7 @@ function aqiLabel(aqi: number): { label: string; color: string; bg: string } {
 async function fetchAirQuality(): Promise<AirQuality> {
   const url =
     'https://air-quality-api.open-meteo.com/v1/air-quality' +
-    '?latitude=39.690&longitude=-105.124' +
+    '?latitude=39.706522&longitude=-105.154665' +
     '&current=us_aqi,pm2_5' +
     '&timezone=America%2FDenver';
 

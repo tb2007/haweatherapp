@@ -9,7 +9,7 @@ export interface NWSAlert {
 }
 
 async function fetchAlerts(): Promise<NWSAlert[]> {
-  const res = await fetch('https://api.weather.gov/alerts/active?point=39.690,-105.124', {
+  const res = await fetch('https://api.weather.gov/alerts/active?point=39.706522,-105.154665', {
     headers: { 'User-Agent': 'haweatherapp/1.0' },
   });
   if (!res.ok) return [];
