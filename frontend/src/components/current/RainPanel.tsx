@@ -1,39 +1,100 @@
 import { useCurrentWeather, val, unit } from '../../hooks/useCurrentWeather';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip } from 'recharts';
 import { api } from '../../api/client';
 import { ENTITIES } from '../../constants/entities';
 
-interface DailyTotal { day: string; rain: number }
+interface DailyTotal { label: string; rain: number }
+
+const TUBE_H = 68; // px — inner fill area height
 
 async function fetchDailyRain(): Promise<DailyTotal[]> {
   const { data } = await api.history(ENTITIES.totalRain, 168);
   if (!data?.length) return [];
 
-  const byDay = new Map<string, { min: number; max: number }>();
+  const today = new Date();
+  const byDay = new Map<string, { min: number; max: number; ts: number }>();
+
   for (const pt of data) {
-    const day = new Date(pt.t).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    const existing = byDay.get(day);
+    const d = new Date(pt.t);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const existing = byDay.get(key);
     if (!existing) {
-      byDay.set(day, { min: pt.v, max: pt.v });
+      byDay.set(key, { min: pt.v, max: pt.v, ts: pt.t });
     } else {
-      byDay.set(day, { min: Math.min(existing.min, pt.v), max: Math.max(existing.max, pt.v) });
+      byDay.set(key, {
+        min: Math.min(existing.min, pt.v),
+        max: Math.max(existing.max, pt.v),
+        ts: existing.ts,
+      });
     }
   }
 
-  return Array.from(byDay.entries()).map(([day, { min, max }]) => ({
-    day,
-    rain: Math.max(0, parseFloat((max - min).toFixed(2))),
-  }));
+  return Array.from(byDay.values()).map(({ min, max, ts }) => {
+    const d = new Date(ts);
+    const isToday = d.toDateString() === today.toDateString();
+    return {
+      label: isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' }),
+      rain: Math.max(0, parseFloat((max - min).toFixed(2))),
+    };
+  });
 }
 
 function useDailyRain() {
   return useQuery({
-    queryKey: ['daily-rain'],
+    queryKey: ['daily-rain-gauges'],
     queryFn: fetchDailyRain,
     staleTime: 5 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,
   });
+}
+
+function RainGauges({ days }: { days: DailyTotal[] }) {
+  const maxRain = Math.max(...days.map((d) => d.rain), 0.01);
+
+  return (
+    <div className="flex w-full justify-between">
+      {days.map((d) => {
+        const fillH = Math.round((d.rain / maxRain) * TUBE_H);
+        return (
+          <div key={d.label} className="flex flex-col items-center gap-1">
+            {/* Amount label — fixed height so all tubes stay top-aligned */}
+            <span className="flex h-3.5 items-center text-[9px] font-medium leading-none text-blue-400">
+              {d.rain > 0 ? d.rain.toFixed(2) : ''}
+            </span>
+
+            {/* Gauge tube */}
+            <div
+              className="relative overflow-hidden rounded-full border border-slate-600 bg-slate-900/80"
+              style={{ width: 22, height: TUBE_H }}
+            >
+              {/* Glass highlight — thin streak on left side */}
+              <div className="absolute bottom-2 left-1.5 top-2 w-px rounded-full bg-white/10" />
+
+              {/* Graduation marks at 25 / 50 / 75 % */}
+              {[0.25, 0.5, 0.75].map((pct) => (
+                <div
+                  key={pct}
+                  className="absolute left-0 right-0 border-t border-slate-700/60"
+                  style={{ bottom: Math.round(pct * TUBE_H) }}
+                />
+              ))}
+
+              {/* Water fill */}
+              {fillH > 0 && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-700 to-sky-400"
+                  style={{ height: fillH }}
+                />
+              )}
+            </div>
+
+            {/* Day label */}
+            <span className="text-[10px] leading-none text-slate-500">{d.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function RainPanel() {
@@ -48,8 +109,6 @@ export function RainPanel() {
   const weeklyUnit = unit(data, ENTITIES.weeklyRain);
   const yearlyVal = val(data, ENTITIES.yearlyRain);
   const yearlyUnit = unit(data, ENTITIES.yearlyRain);
-
-  const hasRain = rainDays && rainDays.some((d) => d.rain > 0);
 
   return (
     <section className="space-y-3">
@@ -88,32 +147,13 @@ export function RainPanel() {
         </div>
       </div>
 
-      {/* Mini 7-day rainfall bar chart */}
+      {/* 7-day rain gauges */}
       {rainDays && (
-        <div className="rounded-xl bg-slate-800 px-3 pb-2 pt-3 shadow">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-widest text-slate-500">7-Day Rainfall</span>
-            {!hasRain && <span className="text-[10px] text-slate-600">No rain recorded</span>}
-          </div>
-          <div style={{ touchAction: 'pan-y' }}>
-            <ResponsiveContainer width="100%" height={80}>
-              <BarChart data={rainDays} margin={{ top: 2, right: 4, left: 4, bottom: 0 }}>
-                <XAxis
-                  dataKey="day"
-                  tick={{ fill: '#64748b', fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px' }}
-                  labelStyle={{ color: '#94a3b8', fontSize: 10 }}
-                  itemStyle={{ fontSize: 11 }}
-                  formatter={(v: number) => [`${v.toFixed(2)} in`, 'Rain']}
-                />
-                <Bar dataKey="rain" fill="#38bdf8" radius={[3, 3, 0, 0]} maxBarSize={28} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="rounded-xl bg-slate-800 px-4 pb-3 pt-3 shadow">
+          <span className="mb-3 block text-[10px] font-medium uppercase tracking-widest text-slate-500">
+            7-Day Rainfall
+          </span>
+          <RainGauges days={rainDays} />
         </div>
       )}
     </section>
