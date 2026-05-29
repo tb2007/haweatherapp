@@ -1,10 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWebcam } from '../../hooks/useWebcam';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 function Go2rtcPlayer({ streamName }: { streamName: string }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [streamKey, setStreamKey] = useState(() => Date.now());
+
+  // iOS Safari kills the MJPEG connection when the browser is backgrounded.
+  // When the user returns, force a fresh connection by resetting the src.
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setLoaded(false);
+        setError(false);
+        setStreamKey(Date.now());
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
@@ -33,7 +48,7 @@ function Go2rtcPlayer({ streamName }: { streamName: string }) {
       )}
 
       <img
-        src={`/go2rtc/api/stream.mjpeg?src=${streamName}`}
+        src={`/go2rtc/api/stream.mjpeg?src=${streamName}&t=${streamKey}`}
         alt="Live Camera"
         className={`h-full w-full object-contain transition-opacity duration-500 ${loaded && !error ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
