@@ -82,9 +82,19 @@ function MjpegPlayer({ url }: { url: string }) {
 
 export function WebcamPanel() {
   const { data, isLoading } = useWebcam();
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const cameras = data ?? [];
+  const active = cameras.find((c) => c.id === activeId) ?? cameras[0];
+
+  useEffect(() => {
+    if (cameras.length && !cameras.some((c) => c.id === activeId)) {
+      setActiveId(cameras[0].id);
+    }
+  }, [cameras, activeId]);
 
   if (isLoading) return <div className="flex justify-center py-8"><LoadingSpinner /></div>;
-  if (!data || data.type === 'disabled') return null;
+  if (!cameras.length) return null;
 
   return (
     <section>
@@ -92,9 +102,30 @@ export function WebcamPanel() {
         Live Camera
       </h2>
       <div className="rounded-xl bg-slate-800 p-4 shadow">
-        {data.type === 'hls' && <Go2rtcPlayer streamName={data.url} />}
-        {data.type === 'youtube' && <YouTubeEmbed url={data.url} />}
-        {data.type === 'mjpeg' && <MjpegPlayer url={data.url} />}
+        {cameras.length > 1 && (
+          <div className="mb-3 flex gap-2">
+            {cameras.map((cam) => (
+              <button
+                key={cam.id}
+                onClick={() => setActiveId(cam.id)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  active?.id === cam.id
+                    ? 'bg-sky-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                {cam.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {active && (
+          <>
+            {active.type === 'hls' && <Go2rtcPlayer key={active.id} streamName={active.url} />}
+            {active.type === 'youtube' && <YouTubeEmbed key={active.id} url={active.url} />}
+            {active.type === 'mjpeg' && <MjpegPlayer key={active.id} url={active.url} />}
+          </>
+        )}
       </div>
     </section>
   );

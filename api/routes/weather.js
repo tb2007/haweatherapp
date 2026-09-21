@@ -63,13 +63,16 @@ router.get('/history/:entityId', async (req, res) => {
   }
 });
 
-// Webcam config — returns proxied HLS path; RTSP URL never leaves the server
+// Webcam config — returns proxied stream names; RTSP URLs never leave the server
 router.get('/webcam', (req, res) => {
-  const enabled = !!process.env.RTSP_URL;
-  res.json({
-    type: enabled ? 'hls' : 'disabled',
-    url: enabled ? 'camera' : '',
-  });
+  const cameras = [
+    { id: 'camera', name: 'SnowCam', type: 'hls', url: 'camera', enabled: !!process.env.RTSP_URL },
+    { id: 'camera2', name: 'AnimalAlley', type: 'hls', url: 'camera2', enabled: !!process.env.RTSP_URL_2 },
+  ]
+    .filter((c) => c.enabled)
+    .map(({ enabled, ...c }) => c);
+
+  res.json(cameras);
 });
 
 export default router;

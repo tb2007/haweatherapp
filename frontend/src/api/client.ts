@@ -12,7 +12,7 @@ export type HAState = {
 
 export type HistoryPoint = { t: number; v: number };
 
-export type WebcamConfig = { type: 'hls' | 'mjpeg' | 'youtube' | 'disabled'; url: string };
+export type WebcamCamera = { id: string; name: string; type: 'hls' | 'mjpeg' | 'youtube'; url: string };
 
 export const api = {
   login: (username: string, password: string) =>
@@ -28,6 +28,6 @@ export const api = {
   history: (entityId: string, hours: number) =>
     client.get<HistoryPoint[]>(`/api/weather/history/${entityId}?hours=${hours}`),
 
-  webcam: () => client.get<WebcamConfig>('/api/weather/webcam'),
+  webcam: () => client.get<WebcamCamera[]>('/api/weather/webcam'),
 
 };

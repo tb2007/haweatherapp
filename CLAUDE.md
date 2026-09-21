@@ -13,7 +13,7 @@ Internet
                         Home Assistant  http://hatb.ad.bpu.link:8123
          /go2rtc/  → go2rtc container  (port 1984, internal only)
                               ↓
-                        RTSP camera
+                        RTSP cameras (SnowCam, AnimalAlley)
 ```
 
 The frontend container's nginx proxies `/api/*` to the `api` container over the internal Docker bridge network. The HA token lives only in the API container environment — it is never sent to the browser.
@@ -89,7 +89,7 @@ weatherapp/
             │   ├── WindChart.tsx         # Rolling average smoothing; Max Wind/Max Gust badges
             │   ├── RainChart.tsx         # Cumulative total rain area chart
             │   └── DailyRainChart.tsx    # Bar chart of daily rain totals (7 days, computed from cumulative)
-            ├── webcam/WebcamPanel.tsx    # HLS (hls.js), MJPEG, YouTube; hidden if RTSP_URL unset
+            ├── webcam/WebcamPanel.tsx    # Tabbed multi-camera (SnowCam/AnimalAlley); MJPEG via go2rtc, YouTube; hidden if no cameras enabled
             └── ui/
                 ├── LoadingSpinner.tsx
                 └── TimeRangePicker.tsx   # 6h / 24h / 48h / 7d — global for History tab
@@ -134,7 +134,8 @@ Copy `.env.example` to `.env` and fill in all values before deploying.
 | `APP_USERNAME` | Login username (kept in .env but auth is disabled — app is public) |
 | `APP_PASSWORD` | Login password (kept in .env but auth is disabled — app is public) |
 | `JWT_SECRET` | JWT signing secret (kept in .env but auth is disabled) |
-| `RTSP_URL` | RTSP stream URL for webcam, e.g. `rtsp://user:pass@ip:7447/token`. Leave blank to disable webcam. |
+| `RTSP_URL` | RTSP stream URL for webcam 1 ("SnowCam"), e.g. `rtsp://user:pass@ip:7447/token`. Leave blank to disable. |
+| `RTSP_URL_2` | RTSP(S) stream URL for webcam 2 ("AnimalAlley"), e.g. `rtsps://ip:7441/token?enableSrtp`. Leave blank to disable. |
 | `COOKIE_SECURE` | Set to `false` for HTTP testing. Defaults to `true`. (Moot — auth removed.) |
 
 ## Local Development
@@ -197,7 +198,11 @@ Manual deploy: GitHub → Actions → Deploy → Run workflow
 
 ## Webcam Setup (RTSP)
 
-Set `RTSP_URL` in `.env`. go2rtc transcodes RTSP → MJPEG via ffmpeg. The RTSP URL never reaches the browser.
+Two cameras are supported, each independently toggled by its env var:
+- **SnowCam** — `RTSP_URL`
+- **AnimalAlley** — `RTSP_URL_2` (RTSPS supported, e.g. UniFi Protect's `rtsps://...?enableSrtp` links)
+
+Set the var(s) in `.env`. go2rtc transcodes RTSP(S) → MJPEG via ffmpeg. The RTSP URL never reaches the browser — the frontend only ever requests `/go2rtc/api/stream.mjpeg?src=camera` or `src=camera2`.
 
 ```
 Browser → nginx (/go2rtc/) → go2rtc:1984 (ffmpeg H264→MJPEG) → RTSP camera
@@ -219,9 +224,14 @@ streams:
   camera:
     - ${RTSP_URL}           # source
     - ffmpeg:camera#video=mjpeg  # MJPEG transcoder
+  camera2:
+    - ${RTSP_URL_2}
+    - ffmpeg:camera2#video=mjpeg
 ```
 
-Leave `RTSP_URL` blank to disable the webcam panel entirely.
+`GET /api/weather/webcam` returns an array of enabled cameras (`{ id, name, type, url }`), filtering out any whose RTSP var is unset. `WebcamPanel` renders a tab per enabled camera (hidden entirely if none are enabled; tabs only shown when 2+ are enabled) and mounts a fresh `Go2rtcPlayer` per tab switch, so each stream's loading/error state resets independently.
+
+Leave `RTSP_URL` and/or `RTSP_URL_2` blank to disable that camera; leave both blank to disable the webcam panel entirely.
 
 ## Live Data
 
@@ -253,6 +263,7 @@ Leave `RTSP_URL` blank to disable the webcam panel entirely.
 | AQI source | Open-Meteo (not HA WH45) | Station CO₂/PM sensors removed; Open-Meteo provides calibrated AQI |
 | Condition icon | WMO weather code from Open-Meteo forecast | Solar/lux removed from display; forecast code is more semantically correct |
 | Webcam | MJPEG via img tag | WebRTC fails through nginx; HLS stutters (UniFi 5s keyframe); MJPEG works everywhere |
+| Multi-camera UI | Tabs, per-camera go2rtc stream | Each RTSP source gets its own go2rtc stream name; tab bar only rendered when 2+ cameras enabled |
 | Charts | Recharts | React-native, responsive containers, no D3 imperative code |
 | State management | TanStack Query only | All state is server data; no Redux/Zustand needed |
 | Build | Multi-stage Docker | Node builder → nginx:alpine; minimal runtime image |
@@ -272,6 +283,7 @@ Leave `RTSP_URL` blank to disable the webcam panel entirely.
 - **Rain panel:** 2-column grid — "Rain Event" | "Weekly / Yearly" (combined card with stacked values)
 - **AQI:** Inline in WeatherHero, not a separate panel. `AQIPanel.tsx` still exists for the gradient bar if needed.
 - **Webcam:** `<img>` with `onLoad`/`onError` states + pulsing red LIVE badge overlay
+- **Webcam tabs:** "SnowCam" / "AnimalAlley" pill buttons above the player, active tab filled sky-blue; hidden entirely with 0 or 1 camera enabled
 - **Pressure trend:** Colored pill badge — green "↑ Rising", red "↓ Falling", slate "→ Steady"
 - **Charts:** 260px height (was 200px); DailyRainChart also 260px
 - **Forecast cards:** Show precipitation probability (`💧 %`) from Open-Meteo `precipitation_probability` field
