@@ -8,6 +8,9 @@ streams:
   camera:
     - ${RTSP_URL}
     - ffmpeg:camera#video=mjpeg
+  camera2:
+    - ${RTSP_URL_2}
+    - ffmpeg:camera2#video=mjpeg
 
 log:
   level: warn

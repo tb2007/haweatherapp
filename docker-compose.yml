@@ -11,6 +11,7 @@ services:
       APP_PASSWORD: ${APP_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       RTSP_URL: ${RTSP_URL:-}
+      RTSP_URL_2: ${RTSP_URL_2:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
     networks:
       - internal
@@ -33,6 +34,7 @@ services:
     restart: unless-stopped
     environment:
       RTSP_URL: ${RTSP_URL:-}
+      RTSP_URL_2: ${RTSP_URL_2:-}
     volumes:
       - ./go2rtc/go2rtc.yaml:/config/go2rtc.yaml:ro
     networks:
