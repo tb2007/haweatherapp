@@ -85,7 +85,7 @@ export function HourlyForecast() {
             return (
               <div
                 key={hour.time}
-                className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-sky-50 px-3 py-3 text-center"
+                className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-100 px-3 py-3 text-center"
               >
                 <span className="text-xs font-medium text-slate-500">{fmtHour(hour.time)}</span>
                 <span className="text-2xl leading-none">{wuIcon(hour.weatherCode, h)}</span>
@@ -103,7 +103,7 @@ export function HourlyForecast() {
           {view === '7d' && data.days.map((day) => (
             <div
               key={day.date}
-              className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-sky-50 px-3 py-3 text-center"
+              className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-100 px-3 py-3 text-center"
             >
               <span className="text-xs font-medium text-slate-500">{fmtDay(day.date)}</span>
               <span className="text-2xl leading-none">{wuIcon(day.weatherCode)}</span>

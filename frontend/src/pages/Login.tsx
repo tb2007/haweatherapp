@@ -22,7 +22,7 @@ export function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-sky-100 via-sky-50 to-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-200 via-slate-100 to-slate-100 px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
         <div className="mb-8 text-center">
           <div className="mb-2 text-4xl">🌤</div>

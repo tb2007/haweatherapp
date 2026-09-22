@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  @apply bg-sky-50 text-slate-800 min-h-screen;
+  @apply bg-slate-200 text-slate-800 min-h-screen;
 }
 
 ::-webkit-scrollbar {
