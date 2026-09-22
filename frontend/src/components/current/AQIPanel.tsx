@@ -14,17 +14,17 @@ export function AQIPanel() {
   const markerPct = Math.min((data.aqi / AQI_MAX) * 100, 100);
 
   return (
-    <div className={`rounded-xl border border-slate-700/50 p-4 ${bg}`}>
+    <div className={`rounded-xl border border-slate-100 p-4 ${bg}`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Air Quality Index</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Air Quality Index</p>
           <div className="mt-1 flex items-baseline gap-2">
             <span className={`text-4xl font-extrabold ${color}`}>{data.aqi}</span>
             <span className={`text-sm font-semibold ${color}`}>{label}</span>
           </div>
-          <p className="mt-1 text-xs text-slate-400">PM2.5: <strong className="text-slate-300">{data.pm25} µg/m³</strong></p>
+          <p className="mt-1 text-xs text-slate-500">PM2.5: <strong className="text-slate-700">{data.pm25} µg/m³</strong></p>
         </div>
-        <div className="text-right text-xs text-slate-500">
+        <div className="text-right text-xs text-slate-400">
           <p>Lakewood, CO</p>
           <p className="mt-0.5">via Open-Meteo</p>
         </div>
@@ -36,11 +36,11 @@ export function AQIPanel() {
           style={{ background: 'linear-gradient(to right, #22c55e 0%, #eab308 33%, #f97316 50%, #ef4444 67%, #a855f7 83%, #f43f5e 100%)' }}>
           {/* Marker */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-1.5 rounded-full bg-white shadow-lg ring-1 ring-slate-900"
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-1.5 rounded-full bg-white shadow-lg ring-1 ring-slate-300"
             style={{ left: `${markerPct}%` }}
           />
         </div>
-        <div className="mt-1.5 flex justify-between text-[9px] text-slate-500 font-medium">
+        <div className="mt-1.5 flex justify-between text-[9px] text-slate-400 font-medium">
           <span>Good</span>
           <span>Moderate</span>
           <span>Sensitive</span>

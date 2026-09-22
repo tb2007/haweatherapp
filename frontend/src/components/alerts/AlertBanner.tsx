@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useNWSAlerts, NWSAlert } from '../../hooks/useNWSAlerts';
 
 const severityStyle: Record<string, string> = {
-  Extreme: 'bg-red-900/80 border-red-500 text-red-200',
-  Severe:  'bg-orange-900/80 border-orange-500 text-orange-200',
-  Moderate:'bg-yellow-900/80 border-yellow-500 text-yellow-200',
-  Minor:   'bg-teal-900/80 border-teal-500 text-teal-200',
-  Unknown: 'bg-slate-800 border-slate-600 text-slate-300',
+  Extreme: 'bg-red-50 border-red-400 text-red-800',
+  Severe:  'bg-orange-50 border-orange-400 text-orange-800',
+  Moderate:'bg-yellow-50 border-yellow-400 text-yellow-800',
+  Minor:   'bg-teal-50 border-teal-400 text-teal-800',
+  Unknown: 'bg-slate-50 border-slate-300 text-slate-700',
 };
 
 function AlertItem({ alert }: { alert: NWSAlert }) {
