@@ -6,12 +6,12 @@ export interface AirQuality {
 }
 
 function aqiLabel(aqi: number): { label: string; color: string; bg: string } {
-  if (aqi <= 50)  return { label: 'Good',                        color: 'text-green-400',  bg: 'bg-green-900/40' };
-  if (aqi <= 100) return { label: 'Moderate',                    color: 'text-yellow-400', bg: 'bg-yellow-900/40' };
-  if (aqi <= 150) return { label: 'Unhealthy for Sensitive',     color: 'text-orange-400', bg: 'bg-orange-900/40' };
-  if (aqi <= 200) return { label: 'Unhealthy',                   color: 'text-red-400',    bg: 'bg-red-900/40' };
-  if (aqi <= 300) return { label: 'Very Unhealthy',              color: 'text-purple-400', bg: 'bg-purple-900/40' };
-  return                  { label: 'Hazardous',                  color: 'text-rose-300',   bg: 'bg-rose-900/40' };
+  if (aqi <= 50)  return { label: 'Good',                        color: 'text-green-600',  bg: 'bg-green-50' };
+  if (aqi <= 100) return { label: 'Moderate',                    color: 'text-yellow-600', bg: 'bg-yellow-50' };
+  if (aqi <= 150) return { label: 'Unhealthy for Sensitive',     color: 'text-orange-600', bg: 'bg-orange-50' };
+  if (aqi <= 200) return { label: 'Unhealthy',                   color: 'text-red-600',    bg: 'bg-red-50' };
+  if (aqi <= 300) return { label: 'Very Unhealthy',              color: 'text-purple-600', bg: 'bg-purple-50' };
+  return                  { label: 'Hazardous',                  color: 'text-rose-600',   bg: 'bg-rose-50' };
 }
 
 async function fetchAirQuality(): Promise<AirQuality> {

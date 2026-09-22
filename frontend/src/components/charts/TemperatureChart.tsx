@@ -6,8 +6,8 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 function StatBadge({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <span className="flex items-center gap-1 rounded-md bg-slate-700/60 px-2 py-0.5 text-xs">
-      <span className="text-slate-400">{label}</span>
+    <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs">
+      <span className="text-slate-500">{label}</span>
       <span className={`font-semibold ${color}`}>{value}</span>
     </span>
   );
@@ -24,8 +24,8 @@ function Inner({ hours }: { hours: number }) {
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
-        {minTemp != null && <StatBadge label="Low" value={`${Math.round(minTemp)}°`} color="text-teal-400" />}
-        {maxTemp != null && <StatBadge label="High" value={`${Math.round(maxTemp)}°`} color="text-orange-400" />}
+        {minTemp != null && <StatBadge label="Low" value={`${Math.round(minTemp)}°`} color="text-teal-600" />}
+        {maxTemp != null && <StatBadge label="High" value={`${Math.round(maxTemp)}°`} color="text-orange-600" />}
       </div>
       <BaseChart
         series={[{ key: 'temp', label: 'Temperature', color: '#f97316', data: temp.data ?? [] }]}
