@@ -21,10 +21,10 @@ export function WindCompass({ degrees, speed, gust, unit }: {
   }, [gust]);
 
   return (
-    <div className="flex items-center gap-6 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+    <div className="flex items-center gap-6 rounded-xl bg-slate-700 p-4 shadow">
       {/* Compass */}
       <div className="relative h-36 w-36 shrink-0">
-        <svg viewBox="0 0 100 100" className="h-full w-full text-slate-200">
+        <svg viewBox="0 0 100 100" className="h-full w-full text-slate-500">
           <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="2" />
           {/* Tick marks */}
           {Array.from({ length: 16 }, (_, i) => {
@@ -36,7 +36,7 @@ export function WindCompass({ degrees, speed, gust, unit }: {
                 key={i}
                 x1={50 + inner * Math.cos(angle)} y1={50 + inner * Math.sin(angle)}
                 x2={50 + outer * Math.cos(angle)} y2={50 + outer * Math.sin(angle)}
-                stroke={i % 4 === 0 ? '#64748b' : '#cbd5e1'} strokeWidth={i % 4 === 0 ? 1.5 : 1}
+                stroke={i % 4 === 0 ? '#94a3b8' : '#475569'} strokeWidth={i % 4 === 0 ? 1.5 : 1}
               />
             );
           })}
@@ -45,39 +45,39 @@ export function WindCompass({ degrees, speed, gust, unit }: {
             const angle = (i * 90 - 90) * (Math.PI / 180);
             const x = 50 + 28 * Math.cos(angle);
             const y = 50 + 28 * Math.sin(angle);
-            return <text key={d} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="600" fill="#64748b">{d}</text>;
+            return <text key={d} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="600" fill="#94a3b8">{d}</text>;
           })}
           {/* Arrow */}
           <g transform={`rotate(${deg}, 50, 50)`}>
-            <polygon points="50,8 54,50 50,42 46,50" fill="#0d9488" />
-            <polygon points="50,92 54,50 50,58 46,50" fill="#cbd5e1" />
+            <polygon points="50,8 54,50 50,42 46,50" fill="#2dd4bf" />
+            <polygon points="50,92 54,50 50,58 46,50" fill="#64748b" />
           </g>
-          <circle cx="50" cy="50" r="4" fill="#0d9488" />
+          <circle cx="50" cy="50" r="4" fill="#2dd4bf" />
         </svg>
       </div>
 
       {/* Wind data */}
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-widest text-slate-500">Wind</span>
+        <span className="text-xs font-medium uppercase tracking-widest text-slate-400">Wind</span>
         <div>
-          <div className="text-3xl font-extrabold text-teal-600">
+          <div className="text-3xl font-extrabold text-teal-400">
             {speed ?? '—'}
-            <span className="ml-1 text-base font-normal text-slate-500">{unit}</span>
+            <span className="ml-1 text-base font-normal text-slate-400">{unit}</span>
           </div>
-          <div className="mt-0.5 text-sm text-slate-500">
+          <div className="mt-0.5 text-sm text-slate-400">
             {degrees != null ? `${degToDir(degrees)} · ${Math.round(degrees)}°` : '—'}
           </div>
         </div>
         {gust && (
-          <div className="rounded-lg bg-slate-50 px-3 py-1.5">
+          <div className="rounded-lg bg-slate-600/60 px-3 py-1.5">
             <div>
-              <span className="text-xs text-slate-500">Gust</span>
-              <span className="ml-2 text-sm font-bold text-amber-600">{gust} {unit}</span>
+              <span className="text-xs text-slate-400">Gust</span>
+              <span className="ml-2 text-sm font-bold text-yellow-400">{gust} {unit}</span>
             </div>
             {maxGust > 0 && (
               <div className="mt-0.5">
-                <span className="text-xs text-slate-400">Max </span>
-                <span className="text-xs font-bold text-orange-600">{maxGust.toFixed(1)} {unit}</span>
+                <span className="text-xs text-slate-500">Max </span>
+                <span className="text-xs font-bold text-orange-400">{maxGust.toFixed(1)} {unit}</span>
               </div>
             )}
           </div>

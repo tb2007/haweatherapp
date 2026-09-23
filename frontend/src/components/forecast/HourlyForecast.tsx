@@ -57,17 +57,17 @@ export function HourlyForecast() {
   if (isError || !data) return null;
 
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-xl bg-slate-700/60 p-4">
       {/* Header + toggle */}
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400">Lakewood, CO</span>
+        <span className="text-xs font-medium text-slate-500">Lakewood, CO</span>
         <div className="flex gap-1">
           {(['24h', '7d'] as ForecastView[]).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`rounded px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                view === v ? 'bg-teal-500 text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                view === v ? 'bg-teal-600 text-white' : 'text-slate-400 hover:bg-slate-600/60 hover:text-slate-200'
               }`}
             >
               {v}
@@ -85,16 +85,16 @@ export function HourlyForecast() {
             return (
               <div
                 key={hour.time}
-                className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-100 px-3 py-3 text-center"
+                className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-600/60 px-3 py-3 text-center"
               >
-                <span className="text-xs font-medium text-slate-500">{fmtHour(hour.time)}</span>
+                <span className="text-xs font-medium text-slate-400">{fmtHour(hour.time)}</span>
                 <span className="text-2xl leading-none">{wuIcon(hour.weatherCode, h)}</span>
-                <span className="text-[10px] leading-tight text-slate-500">{wuLabel(hour.weatherCode)}</span>
-                <span className="text-sm font-bold text-teal-600">{Math.round(hour.temp)}°</span>
-                <span className="text-xs text-slate-400">{Math.round(hour.windSpeed)} mph</span>
+                <span className="text-[10px] leading-tight text-slate-400">{wuLabel(hour.weatherCode)}</span>
+                <span className="text-sm font-bold text-teal-300">{Math.round(hour.temp)}°</span>
+                <span className="text-xs text-slate-500">{Math.round(hour.windSpeed)} mph</span>
                 {showPrecip
-                  ? <span className="text-[10px] font-medium text-blue-600">💧 {hour.precipProb}%</span>
-                  : <span className="text-[10px] text-slate-300">—</span>
+                  ? <span className="text-[10px] font-medium text-blue-400">💧 {hour.precipProb}%</span>
+                  : <span className="text-[10px] text-slate-600">—</span>
                 }
               </div>
             );
@@ -103,19 +103,19 @@ export function HourlyForecast() {
           {view === '7d' && data.days.map((day) => (
             <div
               key={day.date}
-              className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-100 px-3 py-3 text-center"
+              className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-lg bg-slate-600/60 px-3 py-3 text-center"
             >
-              <span className="text-xs font-medium text-slate-500">{fmtDay(day.date)}</span>
+              <span className="text-xs font-medium text-slate-400">{fmtDay(day.date)}</span>
               <span className="text-2xl leading-none">{wuIcon(day.weatherCode)}</span>
-              <span className="text-[10px] leading-tight text-slate-500">{wuLabel(day.weatherCode)}</span>
+              <span className="text-[10px] leading-tight text-slate-400">{wuLabel(day.weatherCode)}</span>
               <div className="flex gap-1 text-sm font-bold">
-                <span className="text-teal-600">{day.high ?? '—'}°</span>
-                <span className="text-slate-400">{day.low ?? '—'}°</span>
+                <span className="text-teal-300">{day.high ?? '—'}°</span>
+                <span className="text-slate-500">{day.low ?? '—'}°</span>
               </div>
-              <span className="text-xs text-slate-400">{day.maxWind} mph</span>
+              <span className="text-xs text-slate-500">{day.maxWind} mph</span>
               {day.precipProb > 0
-                ? <span className="text-[10px] font-medium text-blue-600">💧 {day.precipProb}%</span>
-                : <span className="text-[10px] text-slate-300">—</span>
+                ? <span className="text-[10px] font-medium text-blue-400">💧 {day.precipProb}%</span>
+                : <span className="text-[10px] text-slate-600">—</span>
               }
             </div>
           ))}

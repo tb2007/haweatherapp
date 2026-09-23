@@ -58,7 +58,7 @@ export function WeatherHero() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-gradient-to-br from-sky-400 via-sky-500 to-teal-500 p-6 text-white shadow-lg shadow-sky-200">
+      <div className="rounded-xl bg-gradient-to-br from-sky-500 via-sky-600 to-teal-600 p-6 text-white shadow-lg shadow-slate-950/40">
         {/* Condition row */}
         <div className="mb-4 flex items-center gap-2">
           <span className="text-4xl">{condition.icon}</span>

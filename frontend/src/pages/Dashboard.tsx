@@ -17,7 +17,7 @@ type Tab = 'current' | 'history';
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-sm font-semibold tracking-wide text-slate-500">
+    <h2 className="mb-3 text-sm font-semibold tracking-wide text-slate-400">
       {children}
     </h2>
   );
@@ -30,11 +30,11 @@ export function Dashboard() {
   const [hours, setHours] = useState(24);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-200 via-slate-100 to-slate-100">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-800 via-slate-800 to-slate-700">
       <Header lastUpdated={lastFetched} pollIntervalMs={POLL_INTERVAL_MS} />
 
       {/* Desktop tab bar — hidden on mobile */}
-      <div className="sticky top-[53px] z-40 hidden border-b border-slate-300 bg-white/90 px-4 backdrop-blur lg:block sm:px-6 lg:px-8">
+      <div className="sticky top-[53px] z-40 hidden border-b border-slate-600/60 bg-slate-800/90 px-4 backdrop-blur lg:block sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl gap-1 py-2">
           {(['current', 'history'] as Tab[]).map((t) => (
             <button
@@ -43,7 +43,7 @@ export function Dashboard() {
               className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
                 tab === t
                   ? 'bg-teal-500 text-white'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  : 'text-slate-400 hover:bg-slate-600/60 hover:text-slate-200'
               }`}
             >
               {t}
@@ -102,18 +102,18 @@ export function Dashboard() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-300 py-3 text-center text-xs text-slate-400 pb-24 lg:pb-3">
+      <footer className="border-t border-slate-600/60 py-3 text-center text-xs text-slate-500 pb-24 lg:pb-3">
         Lakewood, CO · Green Mountain Weather
       </footer>
 
       {/* Mobile bottom nav — hidden on desktop */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-slate-300 bg-white/95 backdrop-blur lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-slate-600/60 bg-slate-800/95 backdrop-blur lg:hidden">
         {(['current', 'history'] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs font-medium capitalize transition-colors ${
-              tab === t ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'
+              tab === t ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             <span className="text-xl">{t === 'current' ? '🌡️' : '📊'}</span>

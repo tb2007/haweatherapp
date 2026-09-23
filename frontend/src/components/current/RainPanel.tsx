@@ -58,23 +58,23 @@ function RainGauges({ days }: { days: DailyTotal[] }) {
         return (
           <div key={d.label} className="flex flex-col items-center gap-1">
             {/* Amount label — fixed height so all tubes stay top-aligned */}
-            <span className="flex h-3.5 items-center text-[9px] font-medium leading-none text-blue-600">
+            <span className="flex h-3.5 items-center text-[9px] font-medium leading-none text-blue-400">
               {d.rain > 0 ? d.rain.toFixed(2) : ''}
             </span>
 
             {/* Gauge tube */}
             <div
-              className="relative overflow-hidden rounded-full border border-slate-200 bg-slate-50"
+              className="relative overflow-hidden rounded-full border border-slate-600 bg-slate-800/80"
               style={{ width: 22, height: TUBE_H }}
             >
               {/* Glass highlight — thin streak on left side */}
-              <div className="absolute bottom-2 left-1.5 top-2 w-px rounded-full bg-white/70" />
+              <div className="absolute bottom-2 left-1.5 top-2 w-px rounded-full bg-white/10" />
 
               {/* Graduation marks at 25 / 50 / 75 % */}
               {[0.25, 0.5, 0.75].map((pct) => (
                 <div
                   key={pct}
-                  className="absolute left-0 right-0 border-t border-slate-200"
+                  className="absolute left-0 right-0 border-t border-slate-600/60"
                   style={{ bottom: Math.round(pct * TUBE_H) }}
                 />
               ))}
@@ -82,7 +82,7 @@ function RainGauges({ days }: { days: DailyTotal[] }) {
               {/* Water fill */}
               {fillH > 0 && (
                 <div
-                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-600 to-sky-400"
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-700 to-sky-400"
                   style={{ height: fillH }}
                 />
               )}
@@ -114,34 +114,34 @@ export function RainPanel() {
     <section className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         {/* Rain Event + Rate combined */}
-        <div className="flex flex-col justify-between rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-500">Rain Event</span>
+        <div className="flex flex-col justify-between rounded-xl bg-slate-700 p-4 shadow">
+          <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-400">Rain Event</span>
           <div className="space-y-1">
             <div>
-              <span className="text-xl font-bold text-blue-600">{eventVal ?? '—'}</span>
-              {eventVal !== '—' && <span className="ml-1 text-sm text-slate-500">{eventUnit}</span>}
+              <span className="text-xl font-bold text-blue-400">{eventVal ?? '—'}</span>
+              {eventVal !== '—' && <span className="ml-1 text-sm text-slate-400">{eventUnit}</span>}
             </div>
             <div>
-              <span className="text-xs text-slate-500">Rate </span>
-              <span className="text-sm font-bold text-blue-600">{rateVal ?? '—'}</span>
-              {rateVal !== '—' && <span className="ml-1 text-xs text-slate-500">{rateUnit}</span>}
+              <span className="text-xs text-slate-400">Rate </span>
+              <span className="text-sm font-bold text-blue-400">{rateVal ?? '—'}</span>
+              {rateVal !== '—' && <span className="ml-1 text-xs text-slate-400">{rateUnit}</span>}
             </div>
           </div>
         </div>
 
         {/* Weekly + Yearly combined */}
-        <div className="flex flex-col justify-between rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-500">Weekly / Yearly</span>
+        <div className="flex flex-col justify-between rounded-xl bg-slate-700 p-4 shadow">
+          <span className="mb-2 text-xs font-medium uppercase tracking-widest text-slate-400">Weekly / Yearly</span>
           <div className="space-y-1">
             <div>
-              <span className="text-xs text-slate-500">Weekly </span>
-              <span className="text-xl font-bold text-blue-600">{weeklyVal ?? '—'}</span>
-              {weeklyVal !== '—' && <span className="ml-1 text-sm text-slate-500">{weeklyUnit}</span>}
+              <span className="text-xs text-slate-400">Weekly </span>
+              <span className="text-xl font-bold text-blue-400">{weeklyVal ?? '—'}</span>
+              {weeklyVal !== '—' && <span className="ml-1 text-sm text-slate-400">{weeklyUnit}</span>}
             </div>
             <div>
-              <span className="text-xs text-slate-500">Yearly </span>
-              <span className="text-xl font-bold text-blue-600">{yearlyVal ?? '—'}</span>
-              {yearlyVal !== '—' && <span className="ml-1 text-sm text-slate-500">{yearlyUnit}</span>}
+              <span className="text-xs text-slate-400">Yearly </span>
+              <span className="text-xl font-bold text-blue-400">{yearlyVal ?? '—'}</span>
+              {yearlyVal !== '—' && <span className="ml-1 text-sm text-slate-400">{yearlyUnit}</span>}
             </div>
           </div>
         </div>
@@ -149,8 +149,8 @@ export function RainPanel() {
 
       {/* 7-day rain gauges */}
       {rainDays && (
-        <div className="rounded-xl bg-white px-4 pb-3 pt-3 shadow-sm ring-1 ring-slate-100">
-          <span className="mb-3 block text-[10px] font-medium uppercase tracking-widest text-slate-400">
+        <div className="rounded-xl bg-slate-700 px-4 pb-3 pt-3 shadow">
+          <span className="mb-3 block text-[10px] font-medium uppercase tracking-widest text-slate-500">
             7-Day Rainfall
           </span>
           <RainGauges days={rainDays} />

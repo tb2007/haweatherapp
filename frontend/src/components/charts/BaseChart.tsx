@@ -57,14 +57,14 @@ export function BaseChart({ series, unit = '', height = 260, yDomain = ['auto', 
             </linearGradient>
           ))}
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
         <XAxis
           dataKey="t"
           type="number"
           domain={['dataMin', 'dataMax']}
           scale="time"
           tickFormatter={fmtTime}
-          tick={{ fill: '#64748b', fontSize: 11 }}
+          tick={{ fill: '#94a3b8', fontSize: 11 }}
           tickLine={false}
           axisLine={false}
           minTickGap={60}
@@ -72,20 +72,20 @@ export function BaseChart({ series, unit = '', height = 260, yDomain = ['auto', 
         <YAxis
           domain={yDomain}
           width={yAxisWidth}
-          tick={{ fill: '#64748b', fontSize: 11 }}
+          tick={{ fill: '#94a3b8', fontSize: 11 }}
           tickLine={false}
           axisLine={false}
           unit={unit ? ` ${unit}` : undefined}
           tickFormatter={(v: number) => v.toFixed(decimals)}
         />
         <Tooltip
-          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)' }}
-          labelStyle={{ color: '#64748b', fontSize: 11 }}
+          contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8 }}
+          labelStyle={{ color: '#94a3b8', fontSize: 11 }}
           labelFormatter={(v) => new Date(v as number).toLocaleString()}
           formatter={(v: number, name: string) => [`${v.toFixed(decimals)} ${unit}`, name]}
         />
         {series.length > 1 && (
-          <Legend wrapperStyle={{ fontSize: 11, color: '#64748b' }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />
         )}
         {series.map((s) => (
           <Area
