@@ -21,7 +21,7 @@ export function TimeRangePicker({
           className={`min-w-[44px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             hours === o.hours
               ? 'bg-teal-500 text-white'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
           }`}
         >
           {o.label}

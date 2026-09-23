@@ -33,7 +33,7 @@ function Go2rtcPlayer({ streamName }: { streamName: string }) {
 
       {/* Loading state */}
       {!loaded && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
           <LoadingSpinner size="lg" />
           <span className="text-xs">Connecting to camera…</span>
         </div>
@@ -41,7 +41,7 @@ function Go2rtcPlayer({ streamName }: { streamName: string }) {
 
       {/* Error state */}
       {error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
           <span className="text-5xl">📷</span>
           <span className="text-sm font-medium">Camera unavailable</span>
         </div>
@@ -98,10 +98,10 @@ export function WebcamPanel() {
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-slate-500">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-slate-400">
         Live Camera
       </h2>
-      <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+      <div className="rounded-xl bg-slate-700 p-4 shadow">
         {cameras.length > 1 && (
           <div className="mb-3 flex gap-2">
             {cameras.map((cam) => (
@@ -111,7 +111,7 @@ export function WebcamPanel() {
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   active?.id === cam.id
                     ? 'bg-sky-500 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
                 }`}
               >
                 {cam.name}

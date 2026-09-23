@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  @apply bg-slate-200 text-slate-800 min-h-screen;
+  @apply bg-slate-800 text-slate-100 min-h-screen;
 }
 
 ::-webkit-scrollbar {
@@ -14,8 +14,8 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-slate-100;
+  @apply bg-slate-700;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded;
+  @apply bg-slate-500 rounded;
 }

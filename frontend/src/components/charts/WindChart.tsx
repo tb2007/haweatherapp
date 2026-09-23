@@ -16,8 +16,8 @@ function rollingAverage(data: HistoryPoint[], window: number): HistoryPoint[] {
 
 function StatBadge({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs">
-      <span className="text-slate-500">{label}</span>
+    <span className="flex items-center gap-1 rounded-md bg-slate-600/60 px-2 py-0.5 text-xs">
+      <span className="text-slate-400">{label}</span>
       <span className={`font-semibold ${color}`}>{value}</span>
     </span>
   );
@@ -36,8 +36,8 @@ function Inner({ hours }: { hours: number }) {
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
-        {maxSpeed != null && <StatBadge label="Max Wind" value={`${Math.round(maxSpeed)} mph`} color="text-emerald-600" />}
-        {maxGust != null && <StatBadge label="Max Gust" value={`${Math.round(maxGust)} mph`} color="text-amber-600" />}
+        {maxSpeed != null && <StatBadge label="Max Wind" value={`${Math.round(maxSpeed)} mph`} color="text-emerald-400" />}
+        {maxGust != null && <StatBadge label="Max Gust" value={`${Math.round(maxGust)} mph`} color="text-yellow-400" />}
       </div>
       <BaseChart
         series={[
