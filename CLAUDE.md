@@ -14,9 +14,10 @@ Internet
          /go2rtc/  → go2rtc container  (port 1984, internal only)
                               ↓
                         RTSP cameras (SnowCam, AnimalAlley)
+         /timelapse/ → static mp4s written by the timelapse container (SnowCam only)
 ```
 
-The frontend container's nginx proxies `/api/*` to the `api` container over the internal Docker bridge network. The HA token lives only in the API container environment — it is never sent to the browser.
+The frontend container's nginx proxies `/api/*` to the `api` container over the internal Docker bridge network. The HA token lives only in the API container environment — it is never sent to the browser. A separate `timelapse` sidecar container snapshots SnowCam via go2rtc and periodically rebuilds rolling 6h/12h/24h mp4s onto a shared bind mount (see "SnowCam Timelapse" below).
 
 ## Tech Stack
 
@@ -48,7 +49,10 @@ weatherapp/
 │   │   └── auth.js             # JWT cookie verification
 │   └── routes/
 │       ├── auth.js             # POST /api/auth/login|logout, GET /api/auth/me
-│       └── weather.js          # GET /api/weather/states|history/:id|webcam
+│       └── weather.js          # GET /api/weather/states|history/:id|webcam|timelapse
+├── timelapse/
+│   ├── Dockerfile               # alpine + ffmpeg + curl + bash
+│   └── capture.sh                # snapshot loop (30s) + rolling 6/12/24h mp4 rebuild (~15min)
 └── frontend/
     ├── Dockerfile              # multi-stage: node build → nginx:alpine
     ├── nginx.conf              # SPA fallback + /api/ proxy_pass to api:3001
@@ -232,6 +236,30 @@ streams:
 `GET /api/weather/webcam` returns an array of enabled cameras (`{ id, name, type, url }`), filtering out any whose RTSP var is unset. `WebcamPanel` renders a tab per enabled camera (hidden entirely if none are enabled; tabs only shown when 2+ are enabled) and mounts a fresh `Go2rtcPlayer` per tab switch, so each stream's loading/error state resets independently.
 
 Leave `RTSP_URL` and/or `RTSP_URL_2` blank to disable that camera; leave both blank to disable the webcam panel entirely.
+
+## SnowCam Timelapse (6h / 12h / 24h)
+
+A separate `timelapse` sidecar container builds rolling timelapse videos of SnowCam only (not AnimalAlley).
+
+```
+go2rtc:1984/api/frame.jpeg?src=camera   (snapshot endpoint)
+          ↓ curl every 30s
+   timelapse container (alpine + ffmpeg + curl, timelapse/capture.sh)
+          ↓ writes
+   ./timelapse-data/frames/*.jpg          (rolling ~24h5m window, pruned)
+          ↓ every ~15 min, ffmpeg concat-demuxer rebuild
+   ./timelapse-data/output/snowcam-{6,12,24}h.mp4
+          ↓ bind-mounted read-only into
+   frontend (nginx serves /timelapse/*.mp4 statically)      ← browser plays these
+   api (reads same dir just to stat() mtimes for /api/weather/timelapse)
+```
+
+- **Capture interval:** 30s. **Playback:** 24fps → 6h≈30s clip, 12h≈60s, 24h≈120s.
+- **Rebuild cadence:** every ~30 captures (~15 min). Videos are written to a `.tmp.mp4` and `mv`'d into place so nginx/the browser never reads a half-written file.
+- `GET /api/weather/timelapse` returns `[{ hours, available, updatedAt }]` for 6/12/24, gated on `RTSP_URL` being set (same pattern as `/api/weather/webcam`). The frontend polls this every 5 min and uses `updatedAt` as a cache-busting query param on the `<video>` src.
+- `WebcamPanel.tsx` shows a Live/Timelapse toggle only when the active camera is SnowCam (`id === 'camera'`); the AnimalAlley tab never shows it.
+- `timelapse-data/` is a host bind mount (gitignored), not a named Docker volume, so it survives the GitHub Actions deploy's `docker compose up -d --build --force-recreate`. On a fresh deploy host it's created automatically on first `docker compose up`; no manual step needed beyond the usual `plex` ownership of `/media/dockerdata/haweatherapp/`.
+- If `RTSP_URL` is unset, the `timelapse` container idles (no captures, no errors) — same gating as the webcam feature.
 
 ## Live Data
 

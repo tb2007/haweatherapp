@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import axios from 'axios';
+import fs from 'fs';
 
 const router = Router();
 
@@ -73,6 +74,23 @@ router.get('/webcam', (req, res) => {
     .map(({ enabled, ...c }) => c);
 
   res.json(cameras);
+});
+
+// Rolling SnowCam timelapse status — videos are served statically by nginx at /timelapse/
+// GET /api/weather/timelapse
+router.get('/timelapse', (req, res) => {
+  if (!process.env.RTSP_URL) return res.json([]);
+
+  const windows = [6, 12, 24].map((hours) => {
+    try {
+      const { mtime } = fs.statSync(`/timelapse-output/snowcam-${hours}h.mp4`);
+      return { hours, available: true, updatedAt: mtime.toISOString() };
+    } catch {
+      return { hours, available: false, updatedAt: null };
+    }
+  });
+
+  res.json(windows);
 });
 
 export default router;

@@ -13,6 +13,8 @@ services:
       RTSP_URL: ${RTSP_URL:-}
       RTSP_URL_2: ${RTSP_URL_2:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
+    volumes:
+      - ./timelapse-data/output:/timelapse-output:ro
     networks:
       - internal
     expose:
@@ -23,6 +25,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:80"
+    volumes:
+      - ./timelapse-data/output:/usr/share/nginx/html/timelapse:ro
     networks:
       - internal
     depends_on:
@@ -41,6 +45,18 @@ services:
       - internal
     expose:
       - "1984"
+
+  timelapse:
+    build: ./timelapse
+    restart: unless-stopped
+    environment:
+      RTSP_URL: ${RTSP_URL:-}
+    volumes:
+      - ./timelapse-data:/data
+    networks:
+      - internal
+    depends_on:
+      - go2rtc
 
 networks:
   internal:
