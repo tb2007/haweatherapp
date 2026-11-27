@@ -1,6 +1,66 @@
 import { useState, useEffect } from 'react';
 import { useWebcam } from '../../hooks/useWebcam';
+import { useTimelapseStatus } from '../../hooks/useTimelapseStatus';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+
+const TIMELAPSE_CAMERA_ID = 'camera'; // SnowCam only
+
+function timeAgo(iso: string) {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (minutes < 1) return 'just now';
+  if (minutes === 1) return '1 min ago';
+  return `${minutes} min ago`;
+}
+
+function TimelapsePlayer() {
+  const { data } = useTimelapseStatus();
+  const [hours, setHours] = useState<6 | 12 | 24>(6);
+
+  const windows = data ?? [];
+  const active = windows.find((w) => w.hours === hours);
+
+  return (
+    <div>
+      <div className="mb-3 flex gap-2">
+        {([6, 12, 24] as const).map((h) => (
+          <button
+            key={h}
+            onClick={() => setHours(h)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              hours === h ? 'bg-sky-500 text-white' : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+            }`}
+          >
+            {h}h
+          </button>
+        ))}
+      </div>
+
+      {active?.available ? (
+        <div>
+          <video
+            key={`${hours}-${active.updatedAt}`}
+            src={`/timelapse/snowcam-${hours}h.mp4?v=${active.updatedAt}`}
+            controls
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full rounded-lg bg-black"
+          />
+          {active.updatedAt && (
+            <p className="mt-2 text-xs text-slate-400">Updated {timeAgo(active.updatedAt)}</p>
+          )}
+        </div>
+      ) : (
+        <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg bg-black text-slate-500">
+          <span className="text-5xl">🎬</span>
+          <span className="text-sm font-medium">First timelapse is still building</span>
+          <span className="text-xs">Check back in ~15 min</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Go2rtcPlayer({ streamName }: { streamName: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -83,6 +143,7 @@ function MjpegPlayer({ url }: { url: string }) {
 export function WebcamPanel() {
   const { data, isLoading } = useWebcam();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [mode, setMode] = useState<'live' | 'timelapse'>('live');
 
   const cameras = data ?? [];
   const active = cameras.find((c) => c.id === activeId) ?? cameras[0];
@@ -92,6 +153,11 @@ export function WebcamPanel() {
       setActiveId(cameras[0].id);
     }
   }, [cameras, activeId]);
+
+  // Timelapse mode only applies to SnowCam; drop back to live if the user switches cameras
+  useEffect(() => {
+    if (active?.id !== TIMELAPSE_CAMERA_ID) setMode('live');
+  }, [active?.id]);
 
   if (isLoading) return <div className="flex justify-center py-8"><LoadingSpinner /></div>;
   if (!cameras.length) return null;
@@ -119,7 +185,25 @@ export function WebcamPanel() {
             ))}
           </div>
         )}
-        {active && (
+        {active?.id === TIMELAPSE_CAMERA_ID && (
+          <div className="mb-3 flex gap-2">
+            {(['live', 'timelapse'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
+                  mode === m ? 'bg-sky-500 text-white' : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {active && mode === 'timelapse' && active.id === TIMELAPSE_CAMERA_ID && <TimelapsePlayer />}
+
+        {active && (mode === 'live' || active.id !== TIMELAPSE_CAMERA_ID) && (
           <>
             {active.type === 'hls' && <Go2rtcPlayer key={active.id} streamName={active.url} />}
             {active.type === 'youtube' && <YouTubeEmbed key={active.id} url={active.url} />}

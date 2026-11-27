@@ -14,6 +14,8 @@ export type HistoryPoint = { t: number; v: number };
 
 export type WebcamCamera = { id: string; name: string; type: 'hls' | 'mjpeg' | 'youtube'; url: string };
 
+export type TimelapseWindow = { hours: 6 | 12 | 24; available: boolean; updatedAt: string | null };
+
 export const api = {
   login: (username: string, password: string) =>
     client.post('/api/auth/login', { username, password }),
@@ -29,5 +31,7 @@ export const api = {
     client.get<HistoryPoint[]>(`/api/weather/history/${entityId}?hours=${hours}`),
 
   webcam: () => client.get<WebcamCamera[]>('/api/weather/webcam'),
+
+  timelapse: () => client.get<TimelapseWindow[]>('/api/weather/timelapse'),
 
 };
