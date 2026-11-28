@@ -125,11 +125,11 @@ export function WeatherHero() {
         {high && low && (
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-white/80">
             <span>
-              ↑ 24h High <strong className="text-white">{high.v.toFixed(1)}°</strong>
+              ↑ 24h High <strong className="text-white">{Math.round(high.v)}°</strong>
               <span className="ml-1 text-xs text-white/60">at {fmtTime(high.t)}</span>
             </span>
             <span>
-              ↓ 24h Low <strong className="text-white">{low.v.toFixed(1)}°</strong>
+              ↓ 24h Low <strong className="text-white">{Math.round(low.v)}°</strong>
               <span className="ml-1 text-xs text-white/60">at {fmtTime(low.t)}</span>
             </span>
           </div>
