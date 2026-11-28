@@ -50,7 +50,7 @@ export function WeatherHero() {
   const feelsLike = currentHour ? Math.round(currentHour.feelsLike) : null;
   const sunTimes = forecast?.sunTimes ?? null;
 
-  // 24h high/low (with the time each was observed)
+  // 24h high/low
   let low: { t: number; v: number } | null = null;
   let high: { t: number; v: number } | null = null;
   for (const p of tempHistory ?? []) {
@@ -58,7 +58,6 @@ export function WeatherHero() {
     if (!low || p.v < low.v) low = p;
     if (!high || p.v > high.v) high = p;
   }
-  const fmtTime = (t: number) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   const now = Date.now();
   const isNight = sunTimes
@@ -113,25 +112,21 @@ export function WeatherHero() {
           })()}
         </div>
 
-        {/* Sun times row */}
-        {sunTimes && (
+        {/* Sun times + 24h high/low row */}
+        {(sunTimes || (high && low)) && (
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-white/80">
-            <span>☀️ Rise <strong className="text-white">{fmtSunTime(sunTimes.sunrise)}</strong></span>
-            <span>🌙 Set <strong className="text-white">{fmtSunTime(sunTimes.sunset)}</strong></span>
-          </div>
-        )}
-
-        {/* 24h high/low row */}
-        {high && low && (
-          <div className="mt-2 flex flex-wrap gap-4 text-sm text-white/80">
-            <span>
-              ↑ 24h High <strong className="text-white">{Math.round(high.v)}°</strong>
-              <span className="ml-1 text-xs text-white/60">at {fmtTime(high.t)}</span>
-            </span>
-            <span>
-              ↓ 24h Low <strong className="text-white">{Math.round(low.v)}°</strong>
-              <span className="ml-1 text-xs text-white/60">at {fmtTime(low.t)}</span>
-            </span>
+            {sunTimes && (
+              <>
+                <span>☀️ Rise <strong className="text-white">{fmtSunTime(sunTimes.sunrise)}</strong></span>
+                <span>🌙 Set <strong className="text-white">{fmtSunTime(sunTimes.sunset)}</strong></span>
+              </>
+            )}
+            {high && low && (
+              <>
+                <span>↑ 24h High <strong className="text-white">{Math.round(high.v)}°</strong></span>
+                <span>↓ 24h Low <strong className="text-white">{Math.round(low.v)}°</strong></span>
+              </>
+            )}
           </div>
         )}
       </div>
