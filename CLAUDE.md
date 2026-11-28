@@ -308,6 +308,7 @@ go2rtc:1984/api/frame.jpeg?src=camera   (snapshot endpoint)
 - **WeatherHero pressure row:** Pressure · trend badge · Humidity · AQI (number + label, color-coded) — all inline
 - **WeatherHero condition icon:** Derived from WMO weather code (`forecast.hours[0].weatherCode`), night-aware via sunrise/sunset times
 - **Sunrise/Sunset:** ☀️ Rise 6:42 AM · 🌙 Set 8:11 PM
+- **24h High/Low:** Row below sunrise/sunset — ↑ 24h High 54.2° at 2:14 PM · ↓ 24h Low 31.0° at 6:05 AM (from HA temperature history, 24h window)
 - **Rain panel:** 2-column grid — "Rain Event" | "Weekly / Yearly" (combined card with stacked values)
 - **AQI:** Inline in WeatherHero, not a separate panel. `AQIPanel.tsx` still exists for the gradient bar if needed.
 - **Webcam:** `<img>` with `onLoad`/`onError` states + pulsing red LIVE badge overlay
